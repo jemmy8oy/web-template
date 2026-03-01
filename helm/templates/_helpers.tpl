@@ -1,7 +1,7 @@
 {{/*
-Generate a full name for resources
+Generate a full name for resources: {release}-{chart}
 */}}
-{{- define "balenthiranhelm.fullname" -}}
+{{- define "web-app-helm.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else if .Values.nameOverride }}
@@ -14,16 +14,16 @@ Generate a full name for resources
 {{/*
 Chart name
 */}}
-{{- define "balenthiranhelm.name" -}}
+{{- define "web-app-helm.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "balenthiranhelm.labels" -}}
+{{- define "web-app-helm.labels" -}}
 helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-app.kubernetes.io/name: {{ include "balenthiranhelm.name" . }}
+app.kubernetes.io/name: {{ include "web-app-helm.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/version: {{ .Chart.AppVersion }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}

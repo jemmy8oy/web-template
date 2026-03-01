@@ -102,6 +102,50 @@ git commit -m "Initial commit from web-template"
 # Add your remote and push
 ```
 
+## Kubernetes Deployment
+
+### 1. Create the K8s Namespace
+
+```bash
+kubectl create namespace your-app
+```
+
+> This must match `KUBERNETES_NAMESPACE` in `deploy.sh` and `-n` in the commands below.
+
+### 2. Provision a PostgreSQL Database
+
+Create a PostgreSQL database on your cloud provider (e.g. OCI, AWS RDS, Supabase). Note down the connection string in the format:
+
+```
+Host=your-host;Database=your_db;Username=your_user;Password=your_password
+```
+
+### 3. Create the K8s Secret
+
+```bash
+kubectl create secret generic your-app-secrets \
+  --from-literal=DATABASE_URL="Host=your-host;Database=your_db;Username=your_user;Password=your_password" \
+  -n your-app
+```
+
+> **Important**: The secret name (`your-app-secrets`) must match `secretKeyRef.name` in `helm/values.yaml`.
+
+### 4. Update Configuration
+
+Update these two files before deploying:
+
+**`helm/values.yaml`** — set `fullnameOverride`, domain, registry, and secret name.
+
+**`deploy.sh`** — set `APP_NAME` to match `fullnameOverride` in `values.yaml`, and update `REGISTRY_NAMESPACE` and `COMPARTMENT_ID`.
+
+### 5. Deploy
+
+```bash
+./deploy.sh
+```
+
+This will build and push Docker images, then trigger a rolling restart of both deployments.
+
 ## Project Structure
 
 | Layer | Project | Responsibility |

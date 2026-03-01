@@ -1,19 +1,26 @@
+# Controls deployment names: "{fullnameOverride}-frontend" and "{fullnameOverride}-backend"
+# e.g. fullnameOverride: "balenthiran-apeify" -> balenthiran-apeify-frontend, balenthiran-apeify-backend
+fullnameOverride: "your-app"
+
 ingress:
   enabled: true
   className: nginx
   hosts:
-    - host: my-app.co.uk
+    - host: your-app.co.uk    # Replace with your domain
   annotations:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
   tls:
     - hosts:
-        - my-app.co.uk
-      secretName: my-app-tls
+        - your-app.co.uk      # Replace with your domain
+      secretName: your-app-tls
+
+# Registry configuration - replace with your OCI/DockerHub/etc registry prefix
+registryPrefix: "lhr.ocir.io/your-namespace"
 
 apps:
   - name: backend
     image:
-      repository: lhr.ocir.io/lr7uc6l49odc/my-app-backend
+      repository: lhr.ocir.io/your-namespace/your-app-backend   # Update for your registry
       tag: latest
       pullPolicy: Always
     containerPort: 8080
@@ -28,16 +35,16 @@ apps:
       - name: ConnectionStrings__DefaultConnection
         valueFrom:
           secretKeyRef:
-            name: my-app-secrets
+            name: your-app-secrets   # Name of your K8s secret
             key: DATABASE_URL
     resources: {}
     nodeSelector: {}
     tolerations: []
     affinity: {}
 
-  - name: main
+  - name: frontend
     image:
-      repository: lhr.ocir.io/lr7uc6l49odc/my-app
+      repository: lhr.ocir.io/your-namespace/your-app   # Update for your registry
       tag: latest
       pullPolicy: Always
     containerPort: 80
@@ -48,55 +55,6 @@ apps:
     ingress:
       path: /
       pathType: Prefix
-    resources: {}
-    nodeSelector: {}
-    tolerations: []
-    affinity: {}
-
-  - name: platform
-    image:
-      repository: lhr.ocir.io/lr7uc6l49odc/platform
-      tag: latest
-      pullPolicy: Always
-    containerPort: 80
-    replicas: 1
-    service:
-      port: 80
-      targetPort: 80
-    ingress:
-      path: /platform
-      pathType: Prefix
-    resources: {}
-    nodeSelector: {}
-    tolerations: []
-    affinity: {}
-
-  - name: platform-backend
-    image:
-      repository: lhr.ocir.io/lr7uc6l49odc/platform-backend
-      tag: latest
-      pullPolicy: Always
-    containerPort: 8000
-    replicas: 1
-    service:
-      port: 80
-      targetPort: 8000
-    ingress:
-      path: /platform/api
-      pathType: Prefix
-    env:
-      - name: FLASK_SECRET_KEY
-        valueFrom:
-          secretKeyRef:
-            name: platform-secrets
-            key: FLASK_SECRET_KEY
-      - name: GOOGLE_CLIENT_ID
-        valueFrom:
-          secretKeyRef:
-            name: platform-secrets
-            key: GOOGLE_CLIENT_ID
-      - name: ALLOWED_EMAILS
-        value: "jamesmb2608@gmail.com,kerrymy-app@gmail.com"
     resources: {}
     nodeSelector: {}
     tolerations: []

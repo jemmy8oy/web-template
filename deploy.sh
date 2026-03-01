@@ -3,13 +3,19 @@ set -e
 
 # --- Configuration ---
 REGION="LHR"
-NAMESPACE="lr7uc6l49odc"
-FRONTEND_REPO="my-app"
-BACKEND_REPO="my-app-backend"
-COMPARTMENT_ID="ocid1.tenancy.oc1..aaaaaaaazzb6zpefjmtxcgbr2ws5xtd265wa7o47o6j2bjkgznynazqhwmxa"
+REGISTRY_NAMESPACE="your-namespace"       # Your OCI/registry namespace
+COMPARTMENT_ID="your-compartment-id"      # Your OCI Compartment ID
 
-KUBERNETES_NAMESPACE="my-app"
-KUBERNETES_DEPLOYMENT="my-app-my-apphelm-main"
+# APP_NAME must match 'fullnameOverride' in helm/values.yaml
+# Deployment names will be: {APP_NAME}-frontend and {APP_NAME}-backend
+APP_NAME="your-app"
+KUBERNETES_NAMESPACE="your-app"
+
+FRONTEND_REPO="${APP_NAME}"
+BACKEND_REPO="${APP_NAME}-backend"
+
+KUBERNETES_DEPLOYMENT_FRONTEND="${APP_NAME}-frontend"
+KUBERNETES_DEPLOYMENT_BACKEND="${APP_NAME}-backend"
 
 # 1. Checking deployment status
 echo "⚡️ Checking deployment status..."
@@ -80,5 +86,5 @@ purge_repo $BACKEND_REPO
 
 # 5. Done
 echo "✅ Success! Version $TAG is live. Restarting the deployments..."
-kubectl rollout restart deploy $KUBERNETES_DEPLOYMENT -n $KUBERNETES_NAMESPACE
-kubectl rollout restart deploy my-app-my-apphelm-backend -n $KUBERNETES_NAMESPACE
+kubectl rollout restart deploy $KUBERNETES_DEPLOYMENT_FRONTEND -n $KUBERNETES_NAMESPACE
+kubectl rollout restart deploy $KUBERNETES_DEPLOYMENT_BACKEND -n $KUBERNETES_NAMESPACE

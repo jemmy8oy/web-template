@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "balenthiranhelm.fullname" $ }}-{{ .name }}
+  name: {{ include "web-app-helm.fullname" $ }}-{{ .name }}
   labels:
     app: {{ .name }}
 spec:
