@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="SolutionName.Abstractions/SolutionName.Abstractions.csproj" />
+  <Project Path="SolutionName.WebApi/SolutionName.WebApi.csproj" />
+  <Project Path="SolutionName.DataModels/SolutionName.DataModels.csproj" />
+  <Project Path="SolutionName.Database/SolutionName.Database.csproj" />
+  <Project Path="SolutionName.DomainModels/SolutionName.DomainModels.csproj" />
+  <Project Path="SolutionName.EntityModels/SolutionName.EntityModels.csproj" />
+  <Project Path="SolutionName.Services/SolutionName.Services.csproj" />
+</Solution>

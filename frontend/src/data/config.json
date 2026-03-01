@@ -1,0 +1,13 @@
+{
+    "navigation": {
+        "home": "/",
+        "boards": "/boards",
+        "youtube": "/youtube"
+    },
+    "roadmapPaths": {
+        "project": "/boards?type=project",
+        "devops": "/boards?type=devops",
+        "youtube": "/boards?type=youtube",
+        "admin": "/boards?type=admin"
+    }
+}

@@ -1,0 +1,104 @@
+[
+    {
+        "id": "intro-video",
+        "title": "James Balenthiran - Welcome To My Channel - April 6th 2025",
+        "description": "The vision for a sustainable app nursery.",
+        "category": "Strategy",
+        "youtubeUrl": "https://www.youtube.com/watch?v=8H3MIFCKje8"
+    },
+    {
+        "id": "germy-video",
+        "title": "Germy - My First Ever App!",
+        "description": "What 70k downloads taught me about viral growth.",
+        "category": "Post-Mortem",
+        "youtubeUrl": "https://www.youtube.com/watch?v=oAu9jSV_72Y"
+    },
+    {
+        "id": "pivot-ramble-2025",
+        "title": "27/11/25 - 2026 Pivot / Ramble",
+        "description": "Looking ahead to the next phase of development.",
+        "category": "Strategy",
+        "youtubeUrl": "https://www.youtube.com/watch?v=a59L1KgTINI"
+    },
+    {
+        "id": "new-year-2026",
+        "title": "Happy New Year! 2025 Resolution Reflection / 2026 Resolution Setting",
+        "description": "Goals for the upcoming year.",
+        "category": "Strategy",
+        "youtubeUrl": "https://www.youtube.com/watch?v=pnVlFyrcJ8U"
+    },
+    {
+        "id": "portfolio-reveal",
+        "title": "Finally built my online portfolio!",
+        "description": "Revealing the new roadmap and ecosystem.",
+        "category": "Announcement",
+        "youtubeUrl": "https://www.youtube.com/watch?v=BJslrzXNiCk"
+    },
+    {
+        "id": "earn-your-beers-reveal",
+        "title": "Announcing First Project of the Year - Earn Your Beers!",
+        "description": "Building the first utility app of 2026.",
+        "category": "Devlog",
+        "youtubeUrl": "https://www.youtube.com/watch?v=gPzL90ZtClA"
+    },
+    {
+        "id": "oracle-k8s-setup",
+        "title": "Building a Free K8s Cluster",
+        "description": "How I host the nursery on Oracle Cloud's free tier.",
+        "category": "Tutorial"
+    },
+    {
+        "id": "ten-beer-plan-logic",
+        "title": "Why MVP Logic Matters",
+        "description": "Developing the core of Ten Beer Plan.",
+        "category": "Case Study"
+    },
+    {
+        "id": "house-price-scrapers",
+        "title": "Scraping Real Estate Data",
+        "description": "Legal and technical hurdles in housing data.",
+        "category": "Technical"
+    },
+    {
+        "id": "apeify-scaling",
+        "title": "Scaling APEify with Firebase",
+        "description": "Handling real-time data for thousands of users.",
+        "category": "Engineering"
+    },
+    {
+        "id": "codemagic-mobile-cicd",
+        "title": "Codemagic for Mobile CI/CD",
+        "description": "Streamlining app deployments.",
+        "category": "Tutorial"
+    },
+    {
+        "id": "eyb-eyv-pivot",
+        "title": "Pivot: Earn Your Beers to Vices",
+        "description": "Why I'm broadening the scope of the app.",
+        "category": "Strategy"
+    },
+    {
+        "id": "ai-sprint-management",
+        "title": "The Antigravity Workflow: Self-Managing Your Backlog with AI",
+        "description": "The meta-experience of using an AI agent (Antigravity) to maintain a project board and sprints.json.",
+        "category": "Strategy"
+    },
+    {
+        "id": "obsidian-ideation-loop",
+        "title": "From Obsidian to IDE: My AI-Powered Ideation System",
+        "description": "The workflow between Obsidian notes and structured tasks in the IDE.",
+        "category": "Technical"
+    },
+    {
+        "id": "agentic-coding-workflows",
+        "title": "Beyond Copilot: Mastering Agentic AI Coding Workflows",
+        "description": "The difference between simple auto-complete and multi-step agentic execution.",
+        "category": "Engineering"
+    },
+    {
+        "id": "habit-tracker-announcement",
+        "title": "Building for Myself: Announcing My Personal Habit Tracker",
+        "description": "Sharing the 'why' behind building my own habit tracker and the light-hearted goals I'm starting with.",
+        "category": "Announcement"
+    }
+]

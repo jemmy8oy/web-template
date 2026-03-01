@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "James Balenthiran",
+  "classifications": [ "Web", "Personal", "Monorepo" ],
+  "name": "Personal Web Template",
+  "identity": "Balenthiran.WebTemplate",
+  "shortName": "web-template",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "SolutionName",
+  "preferNameDirectory": true,
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "exclude": [
+            "**/.*/**",
+            "bin/**",
+            "obj/**",
+            "**/node_modules/**",
+            "frontend/dist/**",
+            "**/*.user"
+          ]
+        }
+      ]
+    }
+  ]
+}

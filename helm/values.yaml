@@ -1,0 +1,103 @@
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: my-app.co.uk
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  tls:
+    - hosts:
+        - my-app.co.uk
+      secretName: my-app-tls
+
+apps:
+  - name: backend
+    image:
+      repository: lhr.ocir.io/lr7uc6l49odc/my-app-backend
+      tag: latest
+      pullPolicy: Always
+    containerPort: 8080
+    replicas: 1
+    service:
+      port: 80
+      targetPort: 8080
+    ingress:
+      path: /api
+      pathType: Prefix
+    env:
+      - name: ConnectionStrings__DefaultConnection
+        valueFrom:
+          secretKeyRef:
+            name: my-app-secrets
+            key: DATABASE_URL
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+  - name: main
+    image:
+      repository: lhr.ocir.io/lr7uc6l49odc/my-app
+      tag: latest
+      pullPolicy: Always
+    containerPort: 80
+    replicas: 1
+    service:
+      port: 80
+      targetPort: 80
+    ingress:
+      path: /
+      pathType: Prefix
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+  - name: platform
+    image:
+      repository: lhr.ocir.io/lr7uc6l49odc/platform
+      tag: latest
+      pullPolicy: Always
+    containerPort: 80
+    replicas: 1
+    service:
+      port: 80
+      targetPort: 80
+    ingress:
+      path: /platform
+      pathType: Prefix
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+
+  - name: platform-backend
+    image:
+      repository: lhr.ocir.io/lr7uc6l49odc/platform-backend
+      tag: latest
+      pullPolicy: Always
+    containerPort: 8000
+    replicas: 1
+    service:
+      port: 80
+      targetPort: 8000
+    ingress:
+      path: /platform/api
+      pathType: Prefix
+    env:
+      - name: FLASK_SECRET_KEY
+        valueFrom:
+          secretKeyRef:
+            name: platform-secrets
+            key: FLASK_SECRET_KEY
+      - name: GOOGLE_CLIENT_ID
+        valueFrom:
+          secretKeyRef:
+            name: platform-secrets
+            key: GOOGLE_CLIENT_ID
+      - name: ALLOWED_EMAILS
+        value: "jamesmb2608@gmail.com,kerrymy-app@gmail.com"
+    resources: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
