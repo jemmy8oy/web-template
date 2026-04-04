@@ -257,6 +257,9 @@ After scaffolding with `dotnet new web-template -n Company.ProjectName`, work th
 - [ ] Add remote and push
 - [ ] Enable **"Automatically delete head branches"** (Settings → General) — GitHub will delete feature branches after a PR merges, safely, without any agent involvement
 
+### SDD bootstrap — create initial issues
+- [ ] Run `node scripts/init-issues.mjs` — creates all Phase 1–7 orchestrator issues with the `MVP` milestone and ensures the three workflow labels exist. This is the first action the AI takes after the repo is pushed. See [`docs/ai-workflow.md`](docs/ai-workflow.md) for the full issue structure and label-driven workflow.
+
 ### Documentation
 - [ ] Overwrite this `README.md` with your project's business spec — what the product is, who it's for, and what problem it solves. Keep the **Running Locally** section (or adapt it) so contributors know how to get started
 - [ ] Flesh out `docs/specs/` with feature specs before writing code — define the data model, API contracts, and UI behaviour up front

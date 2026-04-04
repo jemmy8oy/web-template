@@ -60,6 +60,23 @@ The issue body is the first-pass spec. Comments are the negotiation. The PR is t
 
 ---
 
+## GitHub Phase Mapping
+
+Each SDD phase maps to a numbered project phase used in GitHub issue titles. See [`docs/ai-workflow.md`](../ai-workflow.md) for the full bootstrap workflow, initial issues, and the `[Na]` / `[N]` issue numbering convention.
+
+| SDD Phase | GitHub Phase | Issues |
+|-----------|-------------|--------|
+| Phase 1 — Vision & Planning | Phase 1 — Project Setup | `[1a]`, `[1b]`, `[1c]` |
+| Phase 2 — Epic & Feature Breakdown | *(part of Phase 1 spec PR)* | — |
+| Phase 3 — UI/UX Design | Phase 2 — UI/UX Design | `[2a]`, `[2]` per feature |
+| Phase 4 — User Story Definition | Phase 3 — Frontend User Stories | `[3a]`, `[3b]`, `[3]` per story |
+| Phase 5 — UI + Skeleton Backend | Phase 4 — Frontend Implementation | `[4]` per story |
+| Phase 6 — Backend Architecture & DB | Phase 5 — Backend Design & Stories | `[5a]`, `[5b]`, `[5c]` |
+| Phase 7 — Backend Implementation | Phase 6 — Backend Implementation | `[6a]` (DB), `[6]` per story |
+| *(post-implementation)* | Phase 7 — MVP | `[7a]`, `[7b]` |
+
+---
+
 ## The Seven Phases
 
 ### Phase 1 — Vision & High-Level Planning
