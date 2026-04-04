@@ -21,8 +21,8 @@ main  ← developer only, production-ready, never touched by the agent
 
 The developer interfaces via GitHub only — they do not have access to the local machine. All progress must be visible via commits and PRs on the remote.
 
-- When picking up a GH issue, follow `.agents/workflows/action-issue.md`
-- When responding to PR review comments, follow `.agents/workflows/respond-to-pr.md`
+- When picking up a GH issue, use the `action-issue` skill
+- When responding to PR review comments, use the `respond-to-pr` skill
 - Never leave work uncommitted and unpushed at the end of a session
 - Never merge your own PR
 

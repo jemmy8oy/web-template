@@ -48,8 +48,8 @@ A `dotnet new` monorepo template for .NET 10 + React 19 projects. Every new proj
 | `docs/specs/testing-strategy.md` | Unit tests, in-process integration tests, Vitest |
 | `docs/specs/sdd-workflow.md` | 7-phase Spec Driven Development process |
 | `.agents/rules/project.md` | Coding conventions, branch strategy, GitHub workflow rules |
-| `.agents/workflows/action-issue.md` | How to pick up and implement a GH issue |
-| `.agents/workflows/respond-to-pr.md` | How to respond to PR review comments |
+| `.claude/skills/action-issue/SKILL.md` | How to pick up and implement a GH issue |
+| `.claude/skills/respond-to-pr/SKILL.md` | How to respond to PR review comments |
 
 ## Running Locally
 
