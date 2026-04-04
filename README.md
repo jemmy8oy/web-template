@@ -193,6 +193,12 @@ After scaffolding with `dotnet new web-template -n Company.ProjectName`, work th
 - [ ] `git init && git add . && git commit -m "Initial commit from web-template"`
 - [ ] Add remote and push
 
+### Documentation
+- [ ] Overwrite this `README.md` with your project's business spec — what the product is, who it's for, and what problem it solves
+- [ ] Flesh out `docs/specs/` with feature specs before writing code — define the data model, API contracts, and UI behaviour up front
+- [ ] Update `CLAUDE.md` to reflect your project's specific conventions, data files, and any decisions made during setup
+- [ ] Delete any `docs/specs/` files from the template that don't apply to your project
+
 ---
 
 ## GitHub Actions
