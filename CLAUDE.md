@@ -104,5 +104,5 @@ Update `helm/values.yaml` and `deploy.sh` with your app name, registry, and doma
 ```
 
 GitHub Actions workflows live in `.github/workflows/`:
-- `ci.yml` — runs on every push/PR: dotnet build + frontend build
+- `ci.yml` — runs on pull requests only: dotnet build + frontend build
 - `docker-build-push.yml` — manual trigger only: builds ARM64 images and pushes to OCIR

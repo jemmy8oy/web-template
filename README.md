@@ -167,7 +167,7 @@ After scaffolding with `dotnet new web-template -n Company.ProjectName`, work th
 - [ ] `deploy.sh` — set `APP_NAME`, `REGION`, `REGISTRY_NAMESPACE`, `COMPARTMENT_ID`, `KUBERNETES_NAMESPACE`
 
 ### GitHub Actions
-- [ ] **Private repo?** Consider removing `ci.yml` — it runs on every push and counts against the 2,000 free minutes/month. Delete the file or disable it in the repository settings (Settings → Actions → General). The deploy workflow (`docker-build-push.yml`) is manual-only so it only runs when you trigger it, making it less of a concern.
+- [ ] **Private repo?** Consider removing `ci.yml` — it runs on every PR and counts against the 2,000 free minutes/month. Delete the file or disable it in the repository settings (Settings → Actions → General). The deploy workflow (`docker-build-push.yml`) is manual-only so it only runs when you trigger it, making it less of a concern.
 - [ ] **Automated deploys on merge to main?** By default `docker-build-push.yml` is manual-only. To trigger it automatically on merge to main, add `push: branches: [main]` to the `on:` block:
   ```yaml
   on:
@@ -207,7 +207,7 @@ Two workflows are included in `.github/workflows/`:
 
 | Workflow | Trigger | Purpose |
 |---|---|---|
-| `ci.yml` | Every push / PR | Builds backend and frontend to catch compile errors — uses `ubuntu-latest` (unlimited on public repos, counts against the 2,000 min/month free allowance on private repos) |
+| `ci.yml` | Pull requests only | Builds backend and frontend to catch compile errors — uses `ubuntu-latest` (unlimited on public repos, counts against the 2,000 min/month free allowance on private repos) |
 | `docker-build-push.yml` | Manual (`workflow_dispatch`) | Builds ARM64 Docker images and pushes to OCI Container Registry |
 
 ### ARM64 Runner Note
