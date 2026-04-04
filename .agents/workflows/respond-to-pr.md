@@ -46,7 +46,11 @@ After pushing the relevant commit, reply to each comment on GitHub explaining:
 
 Do not leave comments unacknowledged.
 
-### 6. Do not re-request review or mark conversations resolved
+### 6. Post a summary comment when done
+
+Once all comments have been addressed and commits pushed, post a single PR comment summarising what was changed and flagging anything that still needs a decision or that you are unsure about. The developer reviews via GitHub — do not rely on a chat reply to communicate this.
+
+### 7. Do not re-request review or mark conversations resolved
 
 Leave that to the developer. They will resolve conversations and re-review when ready.
 

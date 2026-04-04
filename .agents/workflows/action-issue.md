@@ -52,7 +52,11 @@ gh pr create --base dev --head 42-user-registration-form \
   --body "..."
 ```
 
-### 6. Do not merge your own PR
+### 6. Use the PR for all communication
+
+If you have questions, concerns, or want to flag a decision, post them as comments on the PR — not only in a chat reply. The developer reviews via GitHub and may not see a chat response. A PR comment is the record.
+
+### 7. Do not merge your own PR
 
 Leave the PR open for the developer to review. They will leave comments, request changes, or approve and merge.
 
