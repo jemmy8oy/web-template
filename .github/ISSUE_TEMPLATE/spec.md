@@ -6,7 +6,7 @@ labels: ''
 
 ## Spec Questionnaire
 
-Please answer the following before labelling this issue `ai-ready`. The AI will use your answers to raise a spec PR.
+Please answer the following before adding the `waiting-for-ai` label. The AI will use your answers to raise a spec PR.
 
 - **What problem does this product solve, and for whom?**
 
@@ -30,7 +30,7 @@ Please answer the following before labelling this issue `ai-ready`. The AI will 
 
 ## AI Notes
 
-Once the developer adds the `ai-ready` label, the AI will:
+Once the developer adds the `waiting-for-ai` label, the AI will:
 1. Read the answers above
 2. Raise a spec PR with vision statement, epic/feature breakdown, and dependency list
 3. Leave PR comments for anything ambiguous

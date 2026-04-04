@@ -10,7 +10,7 @@ This document describes the end-to-end workflow for projects bootstrapped from t
 
 1. Developer creates the GitHub repo and grants the bot access
 2. AI scaffolds the project from this template and pushes the initial commit
-3. AI creates all **initial issues** (see table below) with the `initial` label and `MVP` milestone
+3. AI creates all **initial issues** (see table below) with the `MVP` milestone
 4. Developer works through Phase 1 issues to configure the project
 
 ---
@@ -67,7 +67,7 @@ This distinction makes it immediately clear whether an issue is orchestrating a 
 |-------|--------|
 | [1a] | Developer (or AI where possible) configures CI/CD pipeline secrets and variables in repository settings → closed |
 | [1b] | Developer configures branch protection rules for `main` and `dev` → closed |
-| [1c] | Developer fills in the spec questionnaire (see below), then labels the issue `ai-ready`. AI raises a **spec PR** containing the project vision, epics, features, and external dependencies. If anything is ambiguous, the AI leaves a PR comment. If unresolved, a new `needs-input` issue is created. Developer reviews, iterates, merges → closed |
+| [1c] | Developer fills in the spec questionnaire (see below), then adds the `waiting-for-ai` label. AI raises a **spec PR** containing the project vision, epics, features, and external dependencies. If anything is ambiguous, the AI leaves a PR comment and swaps the label to `waiting-for-human`. Developer reviews, iterates, merges → closed |
 
 **[1c] Spec questionnaire — the AI expects answers to:**
 - What problem does this product solve, and for whom?
@@ -151,6 +151,21 @@ This means anyone watching the issue gets notified and can navigate to the PR wi
 
 ## Agent Conventions
 
+### Label-driven turns
+
+Labels signal whose turn it is to act. The AI monitors for `waiting-for-ai` on both issues and PRs.
+
+**On issues:**
+- Developer adds `waiting-for-ai` → AI picks up, responds or raises a PR, then swaps to `waiting-for-human`
+- Developer adds `action-ready` → AI implements without discussion, raises a PR, removes `action-ready`
+- If the AI has a blocking question when it sees `action-ready`, it removes `action-ready`, adds `waiting-for-human`, and posts the question as a comment. Developer answers and re-applies `action-ready` to proceed.
+
+**On PRs:**
+- Developer leaves a review and adds `waiting-for-ai` → AI addresses comments, pushes, swaps to `waiting-for-human`
+- No `action-ready` on PRs — a PR is already an implementation artefact
+
+**No labels = idle/backlog.** An issue without labels is simply waiting — neither the AI nor the developer is blocked.
+
 ### "Iterate" shorthand
 
 When the developer sends `iterate`, `iterate issue`, or `iterate pr`, the AI will:
@@ -159,15 +174,7 @@ When the developer sends `iterate`, `iterate issue`, or `iterate pr`, the AI wil
 2. Read all new comments/activity since the last response
 3. Reply or act accordingly
 
-This is a lightweight substitute for webhooks until automated triggers are configured.
-
-### `ai-ready` label
-
-Add the `ai-ready` label to an issue to signal that the developer has finished providing input and the AI should pick it up. Used primarily on [1c] to kick off the spec PR.
-
-### `needs-input` label
-
-The AI creates a `needs-input` issue when a PR comment question goes unanswered and the ambiguity is blocking progress. The developer resolves it and closes the issue.
+This is a lightweight text-based trigger for use alongside the label system.
 
 ---
 
@@ -175,10 +182,11 @@ The AI creates a `needs-input` issue when a PR comment question goes unanswered 
 
 | Label | Usage |
 |-------|-------|
-| `initial` | All initial/orchestrator issues created at bootstrap |
-| `ai-ready` | Issue is ready for the AI to action |
-| `needs-input` | AI is blocked — developer input required |
-| `question` | Open question raised during spec iteration |
+| `waiting-for-ai` | AI's turn — discussion, spec iteration, or PR review iteration |
+| `waiting-for-human` | Human's turn — reviewing, providing input, or signing off |
+| `action-ready` | Issue approved for implementation — AI should start coding |
+
+Labels apply to both issues and PRs. No label = idle/backlog.
 
 ---
 

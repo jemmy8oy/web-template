@@ -37,10 +37,9 @@ function ghSilent(args) {
 // ── Labels ────────────────────────────────────────────────────────────────────
 
 const LABELS = [
-  { name: 'initial',     color: '0075ca', description: 'Orchestrator issue created at bootstrap' },
-  { name: 'ai-ready',    color: '2ea44f', description: 'Issue is ready for the AI to action' },
-  { name: 'needs-input', color: 'd93f0b', description: 'AI is blocked — developer input required' },
-  { name: 'question',    color: 'e4e669', description: 'Open question raised during spec iteration' },
+  { name: 'waiting-for-ai',    color: '2ea44f', description: "AI's turn — discussion, spec iteration, or PR review" },
+  { name: 'waiting-for-human', color: '0075ca', description: "Human's turn — reviewing, providing input, or signing off" },
+  { name: 'action-ready',      color: '7057ff', description: 'Issue approved for implementation — AI should start coding' },
 ];
 
 function ensureLabels() {
@@ -378,7 +377,7 @@ async function run() {
     const bodyFile = join(tmpdir(), `issue-body-${Date.now()}.md`);
     writeFileSync(bodyFile, issue.body);
 
-    gh(`issue create --title "${issue.title}" --body-file "${bodyFile}" --label "initial" --milestone "${milestone}"`);
+    gh(`issue create --title "${issue.title}" --body-file "${bodyFile}" --milestone "${milestone}"`);
     log(`  CREATED  "${issue.title}"`);
 
     try { unlinkSync(bodyFile); } catch { /* ignore */ }
@@ -386,7 +385,7 @@ async function run() {
 
   log('');
   log('✅ Done. All initial SDD issues created.');
-  log('   Next step: work through Phase 1 issues, then label [1c] as ai-ready when the spec questionnaire is complete.');
+  log('   Next step: work through Phase 1 issues, then add the waiting-for-ai label to [1c] once the spec questionnaire is complete.');
 }
 
 run().catch(err => {
