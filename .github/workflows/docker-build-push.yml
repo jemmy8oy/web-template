@@ -1,6 +1,11 @@
 name: Build and Push Docker Images to OCIR
 
-# Triggered manually — not on push to main.
+# Triggered manually only. To also deploy on every merge to main, add:
+#   push:
+#     branches:
+#       - main
+# to the `on:` block below.
+#
 # This template targets OCI Container Registry with ARM64 images (for OKE free tier).
 #
 # Required GitHub repository variables (Settings → Secrets and variables → Variables):

@@ -168,6 +168,14 @@ After scaffolding with `dotnet new web-template -n Company.ProjectName`, work th
 
 ### GitHub Actions
 - [ ] **Private repo?** Consider removing `ci.yml` — it runs on every push and counts against the 2,000 free minutes/month. Delete the file or disable it in the repository settings (Settings → Actions → General). The deploy workflow (`docker-build-push.yml`) is manual-only so it only runs when you trigger it, making it less of a concern.
+- [ ] **Automated deploys on merge to main?** By default `docker-build-push.yml` is manual-only. To trigger it automatically on merge to main, add `push: branches: [main]` to the `on:` block:
+  ```yaml
+  on:
+    push:
+      branches:
+        - main
+    workflow_dispatch:
+  ```
 - [ ] `.github/workflows/docker-build-push.yml` — set `FRONTEND_IMAGE` and `BACKEND_IMAGE` env vars to match `helm/values.yaml`
 - [ ] Repository **Variables** (Settings → Secrets and variables → Variables):
   - `OCIR_REGISTRY` — e.g. `lhr.ocir.io`
