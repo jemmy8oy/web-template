@@ -4,6 +4,15 @@ trigger: always_on
 
 # Project Rules
 
+## GitHub Workflow
+
+The developer interfaces via GitHub only — they do not have access to the local machine. All work must be visible via commits and PRs on the remote.
+
+- When picking up a GH issue, follow `.agents/workflows/action-issue.md`
+- When responding to PR review comments, follow `.agents/workflows/respond-to-pr.md`
+- Never leave work uncommitted and unpushed at the end of a session
+- Never merge your own PR
+
 ## Documentation
 
 - When you introduce a new pattern, architectural decision, or convention, update `CLAUDE.md` before the session ends.
