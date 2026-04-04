@@ -141,8 +141,8 @@ Replace faked skeleton endpoints with real business logic, backed by the designe
 | Fake data | Faker (.NET skeleton routes) |
 | PR / QA review | Scratch environment deployment |
 | Backend unit tests | xUnit + Moq |
+| In-process integration tests | xUnit + Moq (real services, external I/O mocked) |
 | Frontend unit tests | Vitest + React Testing Library |
-| Integration tests | xUnit + real DB (test container or local) |
 
 ---
 
