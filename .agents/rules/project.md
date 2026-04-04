@@ -4,6 +4,19 @@ trigger: always_on
 
 # Project Rules
 
+## Branch Strategy
+
+```
+main  ← developer only, production-ready, never touched by the agent
+ └── dev  ← integration branch, PRs are merged here by the developer
+      └── {issue-number}-{description}  ← all agent work happens here
+```
+
+- **`main`**: managed by the developer only. Never commit or push to `main`.
+- **`dev`**: the integration branch. Never commit or push directly to `dev`. All work reaches `dev` via a PR.
+- **Feature branches**: always branch off `dev`, named `{issue-number}-{short-kebab-description}` (e.g. `42-user-registration-form`). All PRs target `dev`.
+- **Branch deletion**: do not delete branches. Enable "Automatically delete head branches" in GitHub repository settings — GitHub will delete the feature branch after a PR is merged, and will never delete `dev` or `main`.
+
 ## GitHub Workflow
 
 The developer interfaces via GitHub only — they do not have access to the local machine. All work must be visible via commits and PRs on the remote.

@@ -251,9 +251,11 @@ After scaffolding with `dotnet new web-template -n Company.ProjectName`, work th
 - [ ] Provision a PostgreSQL database and note the connection string
 - [ ] `kubectl create secret generic your-app-secrets --from-literal=DATABASE_URL="..." -n your-app`
 
-### Git
+### Git & GitHub repository settings
 - [ ] `git init && git add . && git commit -m "Initial commit from web-template"`
+- [ ] Create `main` and `dev` branches — all agent work branches off `dev`, PRs target `dev`, `main` is developer-only
 - [ ] Add remote and push
+- [ ] Enable **"Automatically delete head branches"** (Settings → General) — GitHub will delete feature branches after a PR merges, safely, without any agent involvement
 
 ### Documentation
 - [ ] Overwrite this `README.md` with your project's business spec — what the product is, who it's for, and what problem it solves. Keep the **Running Locally** section (or adapt it) so contributors know how to get started
