@@ -146,32 +146,59 @@ Update these two files before deploying:
 
 This will build and push Docker images, then trigger a rolling restart of both deployments.
 
+## New Project Checklist
+
+After scaffolding with `dotnet new web-template -n Company.ProjectName`, work through this list:
+
+### Local setup
+- [ ] Run `node scripts/init.mjs` — generates `appsettings.Development.json` and `frontend/.env`
+- [ ] Run the initial EF migration: `dotnet ef database update --project *.Database --startup-project *.WebApi`
+- [ ] Verify the app starts: backend on `http://localhost:5000`, frontend on `http://localhost:5173`
+
+### Branding / placeholders
+- [ ] `frontend/src/components/Hero.tsx` — replace "Your App Name" and the subtitle
+- [ ] `frontend/src/App.tsx` — replace "Your Name Here" in the footer
+- [ ] `frontend/src/components/Navbar.tsx` — replace "App Name" in the mobile logo
+- [ ] `frontend/src/data/config.json` — add any additional nav routes
+- [ ] `frontend/index.html` — update `<title>`
+
+### Helm + deploy script
+- [ ] `helm/values.yaml` — set `fullnameOverride`, `ingress.hosts[0].host`, and image repository paths
+- [ ] `deploy.sh` — set `APP_NAME`, `REGION`, `REGISTRY_NAMESPACE`, `COMPARTMENT_ID`, `KUBERNETES_NAMESPACE`
+
+### GitHub Actions
+- [ ] **Private repo?** Consider removing `ci.yml` — it runs on every push and counts against the 2,000 free minutes/month. Delete the file or disable it in the repository settings (Settings → Actions → General). The deploy workflow (`docker-build-push.yml`) is manual-only so it only runs when you trigger it, making it less of a concern.
+- [ ] `.github/workflows/docker-build-push.yml` — set `FRONTEND_IMAGE` and `BACKEND_IMAGE` env vars to match `helm/values.yaml`
+- [ ] Repository **Variables** (Settings → Secrets and variables → Variables):
+  - `OCIR_REGISTRY` — e.g. `lhr.ocir.io`
+  - `OCIR_NAMESPACE` — your OCI tenancy namespace
+- [ ] Repository **Secrets** (Settings → Secrets and variables → Secrets):
+  - `OCIR_USERNAME` — e.g. `your-tenancy/oracleidentitycloudservice/your@email.com`
+  - `OCIR_AUTH_TOKEN` — OCI auth token (OCI Console → User Settings → Auth Tokens)
+
+### Kubernetes
+- [ ] `kubectl create namespace your-app`
+- [ ] Provision a PostgreSQL database and note the connection string
+- [ ] `kubectl create secret generic your-app-secrets --from-literal=DATABASE_URL="..." -n your-app`
+
+### Git
+- [ ] `git init && git add . && git commit -m "Initial commit from web-template"`
+- [ ] Add remote and push
+
+---
+
 ## GitHub Actions
 
 Two workflows are included in `.github/workflows/`:
 
 | Workflow | Trigger | Purpose |
 |---|---|---|
-| `ci.yml` | Every push / PR | Builds backend (`dotnet build`) and frontend (`npm run build`) to catch compile errors |
+| `ci.yml` | Every push / PR | Builds backend and frontend to catch compile errors — uses `ubuntu-latest` (unlimited on public repos, counts against the 2,000 min/month free allowance on private repos) |
 | `docker-build-push.yml` | Manual (`workflow_dispatch`) | Builds ARM64 Docker images and pushes to OCI Container Registry |
-
-### Required Secrets and Variables
-
-Before using `docker-build-push.yml`, add these in your repository settings (**Settings → Secrets and variables**):
-
-**Variables** (not secret, shown in logs):
-- `OCIR_REGISTRY` — e.g. `lhr.ocir.io`
-- `OCIR_NAMESPACE` — your OCI tenancy namespace
-
-**Secrets** (encrypted):
-- `OCIR_USERNAME` — e.g. `your-tenancy/oracleidentitycloudservice/your@email.com`
-- `OCIR_AUTH_TOKEN` — OCI auth token (generated in OCI Console → User Settings → Auth Tokens)
-
-Also update the `FRONTEND_IMAGE` and `BACKEND_IMAGE` env vars at the top of `docker-build-push.yml` to match your image names in `helm/values.yaml`.
 
 ### ARM64 Runner Note
 
-The deploy workflow uses `ubuntu-24.04-arm` (native ARM64) to avoid QEMU emulation overhead. This runner is **free for public repositories**. For private repositories it requires a paid GitHub plan — see the comment at the top of `docker-build-push.yml` for the `ubuntu-latest` + QEMU alternative.
+The deploy workflow uses `ubuntu-24.04-arm` (native ARM64, required for OKE free tier). This runner is **free for public repositories**. For private repositories it requires a paid GitHub plan — see the comment at the top of `docker-build-push.yml` for the `ubuntu-latest` + QEMU alternative.
 
 ## Project Structure
 

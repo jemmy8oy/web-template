@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: ["**"]
 
+# Public repos: ubuntu-latest runs are unlimited — keep this workflow as-is.
+# Private repos: runs count against the 2,000 free minutes/month on GitHub Free.
+# If that's a concern, delete this file or disable it in Settings → Actions → General.
+
 jobs:
   backend:
     name: Build backend
