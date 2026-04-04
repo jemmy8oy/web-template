@@ -146,6 +146,33 @@ Update these two files before deploying:
 
 This will build and push Docker images, then trigger a rolling restart of both deployments.
 
+## GitHub Actions
+
+Two workflows are included in `.github/workflows/`:
+
+| Workflow | Trigger | Purpose |
+|---|---|---|
+| `ci.yml` | Every push / PR | Builds backend (`dotnet build`) and frontend (`npm run build`) to catch compile errors |
+| `docker-build-push.yml` | Manual (`workflow_dispatch`) | Builds ARM64 Docker images and pushes to OCI Container Registry |
+
+### Required Secrets and Variables
+
+Before using `docker-build-push.yml`, add these in your repository settings (**Settings → Secrets and variables**):
+
+**Variables** (not secret, shown in logs):
+- `OCIR_REGISTRY` — e.g. `lhr.ocir.io`
+- `OCIR_NAMESPACE` — your OCI tenancy namespace
+
+**Secrets** (encrypted):
+- `OCIR_USERNAME` — e.g. `your-tenancy/oracleidentitycloudservice/your@email.com`
+- `OCIR_AUTH_TOKEN` — OCI auth token (generated in OCI Console → User Settings → Auth Tokens)
+
+Also update the `FRONTEND_IMAGE` and `BACKEND_IMAGE` env vars at the top of `docker-build-push.yml` to match your image names in `helm/values.yaml`.
+
+### ARM64 Runner Note
+
+The deploy workflow uses `ubuntu-24.04-arm` (native ARM64) to avoid QEMU emulation overhead. This runner is **free for public repositories**. For private repositories it requires a paid GitHub plan — see the comment at the top of `docker-build-push.yml` for the `ubuntu-latest` + QEMU alternative.
+
 ## Project Structure
 
 | Layer | Project | Responsibility |

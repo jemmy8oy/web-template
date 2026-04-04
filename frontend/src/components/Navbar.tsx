@@ -7,11 +7,11 @@ const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
-    const getLinkStyle = (path: string) => {
-    const isActive = location.pathname === path || (path === config.navigation.boards && location.pathname.startsWith(config.navigation.boards));
+  const getLinkStyle = (path: string) => {
+    const active = location.pathname === path;
     return {
-      color: isActive ? 'var(--accent-primary)' : 'var(--text-secondary)',
-      fontWeight: isActive ? 700 : 500,
+      color: active ? 'var(--accent-primary)' : 'var(--text-secondary)',
+      fontWeight: active ? 700 : 500,
       transition: 'all 0.3s ease',
       position: 'relative' as const,
       display: 'flex',
@@ -20,8 +20,7 @@ const Navbar: React.FC = () => {
     };
   };
 
-  const isActive = (path: string) => location.pathname === path || (path === config.navigation.boards && location.pathname.startsWith(config.navigation.boards));
-
+  const isActive = (path: string) => location.pathname === path;
 
   const ActiveDot = () => (
     <div style={{
@@ -53,7 +52,7 @@ const Navbar: React.FC = () => {
       flexDirection: 'column' as const
     }}>
       <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ fontWeight: 800, fontSize: '1.2rem', color: 'var(--text-primary)', display: 'none' }} className="mobile-logo">James Balenthiran</div>
+        <div style={{ fontWeight: 800, fontSize: '1.2rem', color: 'var(--text-primary)', display: 'none' }} className="mobile-logo">App Name</div>
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           style={{ display: 'none', color: 'var(--text-primary)', fontSize: '1.5rem', padding: '4px' }}
@@ -68,14 +67,7 @@ const Navbar: React.FC = () => {
           Home
           {isActive(config.navigation.home) && <ActiveDot />}
         </Link>
-        <Link to={config.navigation.boards} onClick={() => setIsMenuOpen(false)} style={getLinkStyle(config.navigation.boards)}>
-          Boards
-          {isActive(config.navigation.boards) && <ActiveDot />}
-        </Link>
-        <Link to={config.navigation.youtube} onClick={() => setIsMenuOpen(false)} style={getLinkStyle(config.navigation.youtube)}>
-          YouTube
-          {isActive(config.navigation.youtube) && <ActiveDot />}
-        </Link>
+        {/* Add more nav links here as your project grows */}
         <ThemeToggle />
       </div>
     </nav>
