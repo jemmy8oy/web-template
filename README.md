@@ -92,6 +92,68 @@ npm run dev
 
 API docs available at: `http://localhost:5000/scalar/v1`
 
+## Running Locally
+
+> This section is worth keeping when you replace this README with your project spec.
+
+### Prerequisites
+
+`appsettings.Development.json` is gitignored (it contains secrets). You need it before the backend will start. Either run the onboarding script which generates it for you:
+
+```bash
+node scripts/init.mjs
+```
+
+Or create it manually at `backend/SolutionName.WebApi/appsettings.Development.json`:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Database=your_db;Username=your_user;Password=your_password"
+  },
+  "Jwt": {
+    "Secret": "your-secret-key-min-32-chars-long"
+  }
+}
+```
+
+Similarly, `frontend/.env` is gitignored. Create it manually at `frontend/.env` if needed:
+
+```
+VITE_API_URL=http://localhost:5000
+```
+
+### Start the backend
+
+```bash
+cd backend
+dotnet run --project SolutionName.WebApi
+```
+
+API runs at `http://localhost:5000` — interactive docs at `http://localhost:5000/scalar/v1`.
+
+### Start the frontend
+
+```bash
+cd frontend
+npm run dev
+```
+
+App runs at `http://localhost:5173`. The Vite dev server proxies `/api` and `/openapi` to the backend automatically.
+
+### Regenerate the API client
+
+Run this after any backend endpoint change to keep the frontend types in sync:
+
+```bash
+cd frontend
+npm run codegen
+```
+
+See `docs/specs/openapi-codegen.md` for the full workflow.
+
+---
+
 ## Initialise as a New Git Repo
 
 ```bash
@@ -194,7 +256,7 @@ After scaffolding with `dotnet new web-template -n Company.ProjectName`, work th
 - [ ] Add remote and push
 
 ### Documentation
-- [ ] Overwrite this `README.md` with your project's business spec — what the product is, who it's for, and what problem it solves
+- [ ] Overwrite this `README.md` with your project's business spec — what the product is, who it's for, and what problem it solves. Keep the **Running Locally** section (or adapt it) so contributors know how to get started
 - [ ] Flesh out `docs/specs/` with feature specs before writing code — define the data model, API contracts, and UI behaviour up front
 - [ ] Update `CLAUDE.md` to reflect your project's specific conventions, data files, and any decisions made during setup
 - [ ] Delete any `docs/specs/` files from the template that don't apply to your project
