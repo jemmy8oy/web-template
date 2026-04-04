@@ -63,7 +63,7 @@ See `docs/specs/openapi-codegen.md` for the full workflow. Summary:
 ## Coding Conventions
 
 - **Backend**: Minimal API style (route groups, no controllers). One route file per domain area. Service methods accept/return interfaces, not concrete types.
-- **Frontend**: Small, focused components. Vanilla CSS using the design system in `index.css`. No utility frameworks (no Tailwind etc.).
+- **Frontend**: Small, focused components. SCSS for all styling — component-specific styles in a co-located `.scss` file (e.g. `Navbar.tsx` + `Navbar.scss`), shared design tokens and utilities in `src/styles/`. No utility frameworks (no Tailwind etc.).
 - **Request models**: POST/PUT endpoints use dedicated `*Request` models — never expose server-managed fields (`Id`, `CreatedAt`) in requests.
 - **Naming**: Backend placeholder prefix is `SolutionName.*` — replace wholesale when scaffolding a new project.
 

@@ -22,11 +22,11 @@ trigger: always_on
 
 - Never hand-edit `src/api/generatedApi.ts` — it is always overwritten by `npm run codegen`.
 - Custom API endpoints (not covered by the OpenAPI schema) go in a separate file, not in `generatedApi.ts`.
-- Components should be small and focused. Prefer vanilla CSS using the design system variables in `index.css` over inline styles where a class already exists.
-- New nav links are added to `src/data/config.json` and wired into `Navbar.tsx`.
+- Components should be small and focused.
+- **Styling**: use SCSS. Each component gets its own `.scss` file co-located next to the `.tsx` file (e.g. `Navbar.tsx` + `Navbar.scss`). Shared design tokens, global resets, and reusable utilities live in `src/styles/` (e.g. `index.scss`, `_glass.scss`, `_layout.scss`). Do not write component-specific styles in global files, and do not use inline styles where a class can express the same thing.
 
 ## Infrastructure
 
 - `deploy.sh` and `helm/values.yaml` contain app-specific values that must be updated per project — flag these to the user when onboarding a new project.
 - `docker-build-push.yml` is triggered manually (`workflow_dispatch`) — it does not run automatically on push.
-- `ci.yml` runs on every push and PR and only validates that the code builds — it does not push images.
+- `ci.yml` runs on pull requests only and only validates that the code builds — it does not push images.
