@@ -86,6 +86,26 @@ CI runs on PRs only (`ci.yml`). Image builds are manual (`docker-build-push.yml`
 ## GitHub Conventions
 
 - **Branch target**: All PRs target `dev`. Never target `main` — `dev` → `main` is a human-only action.
-- **PR assignment**: Every PR the AI raises must be assigned to the repo owner.
-- **Issue assignment**: Every issue the AI acts on must be assigned to the repo owner.
+- **PR assignment**: Every PR the AI raises must be assigned to `the repo owner`.
+- **Issue assignment**: Every issue the AI acts on must be assigned to `the repo owner`.
 - **Issue linking**: Every PR body must include `Closes #N`. The AI also comments on the issue: *🤖 PR raised: #N — please review when ready.*
+
+## [2] Design Issue Template
+
+When creating `[2]` UI/UX design issues (via `[2a]`), use this structure:
+
+```
+Design the <feature name> for <product name>.
+
+**Feature:** `docs/features/<feature-file>.md`
+
+**Open UX questions to resolve:**
+- <question from feature file>
+- <question from feature file>
+
+**Deliverables (in the design PR):**
+- [ ] ASCII mockup for each meaningful page/component state
+- [ ] ASCII mockup for each key interaction state (loading, error, empty)
+- [ ] Mermaid workflow diagram for each key user action
+- [ ] All open UX questions answered
+```
