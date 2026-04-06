@@ -15,13 +15,13 @@ A `dotnet new` monorepo template for .NET 10 + React 19 projects. Every new proj
 ```
 /
 ├── backend/                       # .NET solution — 7 projects, Clean Architecture
-│   ├── MacroMetrics.WebApi/       # Entry point: routes, DI, OpenAPI
-│   ├── MacroMetrics.Services/     # Business logic, AutoMapper profiles
-│   ├── MacroMetrics.Abstractions/ # Service interfaces + model interfaces
-│   ├── MacroMetrics.Database/     # EF Core DbContext + migrations
-│   ├── MacroMetrics.EntityModels/ # Database entities (anemic POCOs)
-│   ├── MacroMetrics.DomainModels/ # Rich business-layer objects
-│   └── MacroMetrics.DataModels/   # Request/Response DTOs
+│   ├── SolutionName.WebApi/       # Entry point: routes, DI, OpenAPI
+│   ├── SolutionName.Services/     # Business logic, AutoMapper profiles
+│   ├── SolutionName.Abstractions/ # Service interfaces + model interfaces
+│   ├── SolutionName.Database/     # EF Core DbContext + migrations
+│   ├── SolutionName.EntityModels/ # Database entities (anemic POCOs)
+│   ├── SolutionName.DomainModels/ # Rich business-layer objects
+│   └── SolutionName.DataModels/   # Request/Response DTOs
 ├── frontend/                      # React + TypeScript Vite app
 │   └── src/
 │       ├── api/                   # RTK Query: emptyApi, generatedApi (codegen), custom endpoints
@@ -55,7 +55,7 @@ A `dotnet new` monorepo template for .NET 10 + React 19 projects. Every new proj
 
 ```bash
 # Backend (Terminal 1)
-cd backend && dotnet run --project MacroMetrics.WebApi
+cd backend && dotnet run --project SolutionName.WebApi
 # API: http://localhost:5000  |  Docs: http://localhost:5000/scalar/v1
 
 # Frontend (Terminal 2)
@@ -71,8 +71,8 @@ cd frontend && npm run codegen
 ```bash
 node scripts/init.mjs   # generates appsettings.Development.json + frontend/.env
 cd backend && dotnet ef database update \
-  --project MacroMetrics.Database \
-  --startup-project MacroMetrics.WebApi
+  --project SolutionName.Database \
+  --startup-project SolutionName.WebApi
 ```
 
 ## Deployment
