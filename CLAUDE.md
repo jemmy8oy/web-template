@@ -113,22 +113,27 @@ CI runs on PRs only (`ci.yml`). Image builds are manual (`docker-build-push.yml`
 - **Issue linking**: Every PR body must include `Closes #N`. The AI also comments on the issue: *🤖 PR raised: #N — please review when ready.*
 - **Labels**: After pushing changes and commenting on a PR, always apply the `waiting-for-human` label and remove `waiting-for-ai`. Apply `waiting-for-ai` when handing back to the AI (e.g. after raising a review comment).
 
-## [2] Design Issue Template
+## [1e] Formal Proposal Template
 
-When creating `[2]` UI/UX design issues (via `[2a]`), use this structure:
+When the AI opens a `[1e]` issue from a [1d] discussion, use this structure:
 
 ```
-Design the <feature name> for <product name>.
+## User Workflows
 
-**Feature:** `docs/features/<feature-file>.md`
+### [Workflow name]
+- User can [action]
+- User can [action]
 
-**Open UX questions to resolve:**
-- <question from feature file>
-- <question from feature file>
+## External Dependencies
 
-**Deliverables (in the design PR):**
-- [ ] ASCII mockup for each meaningful page/component state
-- [ ] ASCII mockup for each key interaction state (loading, error, empty)
-- [ ] Mermaid workflow diagram for each key user action
-- [ ] All open UX questions answered
+| Dependency | Purpose | Notes |
+|------------|---------|-------|
+
+## Required API Endpoints
+
+| Method | Path | Purpose |
+|--------|------|---------|
+
+## Open decisions
+- [decision] — Proposal: [recommendation]. Rationale: [reason]. ✅ Unless you disagree?
 ```

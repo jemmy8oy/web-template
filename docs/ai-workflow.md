@@ -1,247 +1,234 @@
 # AI-Assisted Project Workflow
 
-This document describes the end-to-end workflow for projects bootstrapped from this template. It covers the full lifecycle from repository creation through to MVP launch, and defines conventions the AI agent follows throughout.
+This document describes the end-to-end workflow for projects bootstrapped from this template. It covers the full lifecycle from project creation through to a working MVP, and defines conventions the AI agent follows throughout.
 
 ---
 
 ## Phase 0 — Bootstrap
 
-> No GitHub issues. These are one-off actions performed once when the project is created.
+> No GitHub issues. One-off actions performed once when the project is created.
 
-1. Developer creates the GitHub repo and grants the bot access
+1. Developer creates the GitHub repo and grants the bot's GitHub App access
 2. AI scaffolds the project from this template and pushes the initial commit
 3. AI creates all **initial issues** (see table below) with the `MVP` milestone
-4. Developer works through Phase 1 issues to configure the project
+4. Developer adds the four standard labels (see [1a])
 
 ---
 
 ## Initial Issues
 
-These are created automatically at bootstrap. Each is an orchestrator issue — it either requires a direct action (e.g. configure secrets) or it triggers the AI to produce a spec/PR that kicks off the next phase.
+Created automatically at bootstrap. Apply `waiting-for-ai` to each when ready to trigger the AI.
 
-| ID   | Title                                                             |
-|------|-------------------------------------------------------------------|
-| [1a] | Set up pipeline secrets and variables                             |
-| [1b] | Set up branch policies                                            |
-| [1c] | Define high-level project spec, vision and external dependencies  |
-| [2a] | Generate UI/UX design issues from approved spec                   |
-| [3a] | Generate frontend user stories from approved UI/UX designs        |
-| [3b] | Create frontend GitHub issues from user story spec                |
-| [5a] | Create backend design spec                                        |
-| [5b] | Generate backend user stories from approved backend design        |
-| [5c] | Create backend GitHub issues from user story spec                 |
-| [6a] | Hook up Postgres DB (if required)                                 |
-| [7a] | Share MVP — publish YouTube walkthrough and gather user feedback  |
-| [7b] | Create production refinement tickets *(confirm user interest before actioning)* |
+| ID   | Title |
+|------|-------|
+| [1a] | Set up labels, pipeline secrets and variables |
+| [1b] | Set up CI/CD pipeline and branch protection |
+| [1c] | Set up GitHub webhook |
+| [1d] | High-level design discussion |
+| [1e] | *(AI creates this from [1d] discussion)* Formal workflow + API proposal |
+| [2]  | DB entity design + migrations |
+| [3]  | Backend skeleton |
+| [4]  | Frontend MVP |
+| [5] *per feature* | Backend implementation — one issue per feature |
 
-> **Phase 4 has no initial issues** — it consists entirely of implementation issues created by [3b].
-> **Phase 6 has no initial issues** — it consists entirely of implementation issues created by [5c], plus [6a] if Postgres is required.
+> **[1e]** is not created at bootstrap — the AI opens it once [1d] discussion reaches consensus.
+> **[5] issues** are not created at bootstrap — the AI opens one per feature once [4] is merged.
 
 ---
 
 ## Issue Numbering Convention
 
-### Orchestrator / initial issues — `[Na]`, `[Nb]`, `[Nc]`
-A letter suffix identifies an orchestrator issue. These are the initial issues created at bootstrap that trigger or coordinate a phase.
+| Format | Meaning |
+|--------|---------|
+| `[1a]`–`[1c]` | Setup orchestrator issues — human action or one-off AI task |
+| `[1d]`–`[1e]` | Design discussion and proposal — conversational then formal |
+| `[2]`, `[3]`, `[4]` | Phase delivery issues — one per phase, AI raises a PR |
+| `[5] Feature name` | Backend implementation — one per feature, AI raises a PR |
 
-- `[1a]` — first orchestrator issue in Phase 1
-- `[2a]` — first orchestrator issue in Phase 2
-- `[5b]` — second orchestrator issue in Phase 5
-
-### Implementation issues — `[N]`
-Issues created dynamically *as a result of* an orchestrator issue carry only the phase number (no letter). These are the individual units of work the AI picks up and implements.
-
-- `[2] Auth page design` — a UI/UX design issue created by `[2a]`
-- `[4] Auth page` — a frontend implementation issue created by `[3b]`
-- `[6] Auth endpoint` — a backend implementation issue created by `[5c]`
-
-This distinction makes it immediately clear whether an issue is orchestrating a phase or implementing a piece of work within it.
+Post-[5] issues are not numbered. Use descriptive titles and the label system to drive work.
 
 ---
 
 ## Full Workflow
 
-### Phase 1 — Project Setup
+### [1a] — Labels, Pipeline Secrets and Variables
+**Human action.**
 
-| Issue | Action |
-|-------|--------|
-| [1a] | Developer (or AI where possible) configures CI/CD pipeline secrets and variables in repository settings → closed |
-| [1b] | Developer configures branch protection rules for `main` and `dev` → closed |
-| [1c] | Developer fills in the spec questionnaire (see below), then adds the `waiting-for-ai` label. AI raises a **spec PR** containing the project vision, epics, features, and external dependencies. If anything is ambiguous, the AI leaves a PR comment and swaps the label to `waiting-for-human`. Developer reviews, iterates, merges → closed |
+- Create the four standard labels on the repo:
 
-**[1c] Spec questionnaire — the AI expects answers to:**
+```bash
+gh label create "waiting-for-ai"    --color "7B61FF" --description "Waiting for Claude to pick this up"
+gh label create "waiting-for-human" --color "0E8A16" --description "Claude is done — waiting for human review"
+gh label create "ai-error"          --color "D93F0B" --description "Claude encountered an error — needs human attention"
+gh label create "action-ready"      --color "F9D0C4" --description "Ready for the next action"
+```
+
+- Configure CI/CD pipeline secrets in repository settings
+- Close the issue when done
+
+---
+
+### [1b] — CI/CD Pipeline and Branch Protection
+**AI action.** Apply `waiting-for-ai` to trigger.
+
+AI raises a PR setting up:
+- GitHub Actions CI workflow (build + test on PR)
+- Docker image build + push workflow (manual `workflow_dispatch`)
+- Branch protection rules for `main` and `dev`
+
+---
+
+### [1c] — GitHub Webhook Setup
+**AI action.** Apply `waiting-for-ai` to trigger.
+
+AI registers the webhook on this repo:
+- URL: `https://balenthiran.co.uk/webhooks/claude`
+- Events: **Issues** + **Pull requests** only
+- Secret: from cluster secret `GITHUB_WEBHOOK_SECRET`
+
+After this, applying `waiting-for-ai` to any issue or PR on this repo will automatically trigger Claude without a manual Telegram prompt.
+
+---
+
+### [1d] — High-Level Design Discussion
+**Casual conversation in the issue.** Human opens with rough answers to:
+
 - What problem does this product solve, and for whom?
 - What does a successful MVP look like?
-- Is Postgres required? If so, any schema/domain hints?
-- Are there any external data sources, APIs, or third-party integrations?
-- Any auth providers, payment gateways, or other dependencies?
-- What is explicitly out of scope for the MVP?
+- What are the key user workflows? (e.g. "auth", "create a report", "view a dashboard")
+- External APIs, data sources, or third-party integrations?
+- Auth requirements? (none / email+password / OAuth providers)
+- What is explicitly out of scope for MVP?
+
+AI responds with follow-up questions and proposals for any ambiguities. Once settled, AI opens [1e].
 
 ---
 
-### Phase 2 — UI/UX Design
+### [1e] — Formal Workflow + API Proposal
+**AI opens as a new issue.** Human reviews and approves.
 
-| Issue | Action |
-|-------|--------|
-| [2a] | Triggered once [1c] is merged. AI scans the spec for features, creates one `[2] Feature name design` issue per feature. → [2a] closed |
-| [2] *per feature* | AI raises a **design PR** with ASCII mockups and Mermaid workflow diagrams. Developer reviews → merges or requests changes → issue closed on merge |
-
-**[2] issue structure — what the AI puts in each design issue body:**
+The issue contains:
 
 ```
-Design the <feature name> for <product name>.
+## User Workflows
 
-**Feature:** `docs/features/<feature-file>.md`
+### [Workflow name]
+- User can [action]
+- User can [action]
 
-**Open UX questions to resolve:**
-- <question from feature file>
-- <question from feature file>
+## External Dependencies
 
-**Deliverables (in the design PR):**
-- [ ] ASCII mockup for each meaningful page/component state
-- [ ] ASCII mockup for each key interaction state (loading, error, empty)
-- [ ] Mermaid workflow diagram for each key user action
-- [ ] All open UX questions answered
+| Dependency | Purpose | Notes |
+|------------|---------|-------|
+
+## Required API Endpoints
+
+| Method | Path | Purpose |
+|--------|------|---------|
+
+## Open decisions
+- [decision] — Proposal: [recommendation]. Rationale: [reason]. ✅ Unless you disagree?
 ```
 
-**[2] design PR — what the AI produces:**
-- One ASCII mockup per page state and interaction state
-- One Mermaid sequence/flowchart diagram per key user action (shows what the system does, what data flows, what side effects occur)
-- Answers to all open UX questions listed in the issue
-- Sign-off checklist in the PR body for the developer to review before merge
+Apply `waiting-for-ai` to hand back after comments. AI iterates until merged/approved.
 
 ---
 
-### Phase 3 — Frontend User Stories & Issues
+### [2] — DB Entity Design
+**AI action.** Apply `waiting-for-ai` to trigger.
 
-> **BDD (Behaviour-Driven Development)** — a format for writing requirements as human-readable scenarios. Each story follows the pattern: *who* wants to do *what* and *why*, with concrete acceptance criteria that define when the story is done.
+AI raises a PR containing:
+- Mermaid ER diagram
+- EF Core entity classes in `EntityModels/`
+- Relationships, indexes, constraints
+- Initial EF Core migration
 
-| Issue | Action |
-|-------|--------|
-| [3a] | Triggered once all `[2]` issues are closed. AI raises a **spec PR** with three parts: **(A)** `docs/tech-decisions-frontend.md` — proposed library choices with rationale; **(B)** `docs/user-stories-frontend.md` — BDD stories derived from the signed-off designs; **(C)** API skeleton — endpoint contracts, response shapes, and RTK Query hooks table. Human review gate — developer must approve before merge → closed |
-| [3b] | Triggered once [3a] is merged. AI does two things: **(1)** creates individual `[4] Feature name` frontend implementation issues (closely related stories may be grouped into one issue); **(2)** raises a **backend skeleton PR** implementing the API contracts from [3a] using `Bogus` (Faker for .NET) — real HTTP endpoints, no service layer, deterministic seeded data. → closed |
-
-**[3a] spec PR — what the AI produces:**
-- `docs/tech-decisions-frontend.md` — library choices (UI component lib, chart lib, date handling, other deps)
-- `docs/user-stories-frontend.md` — BDD stories with acceptance criteria referencing the chosen libraries
-- API skeleton section in the stories doc: endpoint contracts (path, params, response shapes), RTK Query hooks table
-
-**[3a] tech decisions — the AI proposes choices for:**
-- UI component library (e.g. shadcn/ui, MUI, Mantine, Radix UI, or none)
-- Chart / visualisation library (e.g. Recharts, Chart.js, Nivo, Visx, D3)
-- Date handling (e.g. date-fns, dayjs, native `Intl`/Temporal)
-- Any other notable runtime dependencies specific to the project
+No business logic. Schema only.
 
 ---
 
-### Phase 4 — Frontend Implementation
+### [3] — Backend Skeleton
+**AI action.** Apply `waiting-for-ai` to trigger.
 
-No initial issues. All work is driven by `[4]` issues created by [3b]. The backend skeleton (Faker endpoints) is already running — frontend makes real HTTP calls throughout.
-
-| Issue | Action |
-|-------|--------|
-| [4] *per story* | AI writes Vitest + RTL tests first (AC items → test cases), then implements the component/feature to make them pass. Raises a **feature PR** with `Closes #N` in the body and a comment on the issue. Developer reviews → merges → issue auto-closes |
-
----
-
-### Phase 5 — Backend Design & Stories
-
-| Issue | Action |
-|-------|--------|
-| [5a] | Triggered once all `[4]` issues are closed. AI raises a **backend design PR** covering data models, API contracts, EF Core entities, service architecture, and ER diagram in Mermaid. Developer reviews → merges → closed |
-| [5b] | Triggered once [5a] is merged. AI raises a **backend user story spec PR**. Human review gate → merge → closed |
-| [5c] | Triggered once [5b] is merged. AI creates individual `[5] Feature name` backend implementation issues → closed |
+AI raises a PR containing:
+- All endpoints from [1e] stubbed in .NET Minimal API routes
+- Faker-generated DTOs returned from each endpoint
+- OpenAPI spec generated from the running app
+- RTK Query codegen run — `generatedApi.ts` up to date
 
 ---
 
-### Phase 6 — Backend Implementation
+### [4] — Frontend MVP
+**AI action.** Apply `waiting-for-ai` to trigger.
 
-| Issue | Action |
-|-------|--------|
-| [6a] | Triggered once all `[5]` issues are closed. AI wires up Postgres — schema, EF Core migrations, connection config — and raises a PR. Skipped if Postgres was marked not required in [1c] → closed |
-| [6] *per story* | AI implements the backend story (TDD: unit tests first), raises a **feature PR** with `Closes #N` and a comment on the issue. Developer reviews → merges → issue auto-closes |
+AI raises a PR containing:
+- All user workflows from [1e] implemented as React pages/components
+- Wired to RTK Query hooks (Faker data from skeleton backend)
+- Every workflow is functional end to end
+- Minimal styling — MVP, not a polished product
 
 ---
 
-### Phase 7 — MVP 🎉
+### [5] — Backend — Feature by Feature
+**AI opens one issue per feature after [4] is merged.**
 
-Formal phases end here. Post-MVP work is informal and developer-led.
+Each [5] issue scopes to one feature. AI raises one PR per issue:
+- Real DB queries via EF Core
+- Service layer (see `docs/specs/backend-srp.md`)
+- Unit tests first (TDD)
+- In-process integration tests for end-to-end workflows
 
-| Issue | Action |
-|-------|--------|
-| [7a] | AI drafts a YouTube script and walthrough outline for the MVP. Developer records and publishes |
-| [7b] | AI generates production refinement tickets (performance, security, scaling, testing gaps). ⚠️ **Confirm user interest before actioning these** |
+API contracts should not change during [5] — flag any needed contract changes explicitly.
+
+---
+
+## Post-[5]
+
+Formal phases end here. The project becomes a normal living codebase:
+- Human raises issues as needed (bugs, features, UI polish)
+- Apply `waiting-for-ai` or `action-ready` to hand work to the AI
+- No numbering scheme required
 
 ---
 
 ## Branch Strategy
 
 | Branch | Purpose |
-|---|---|
-| `main` | Production-ready code only — merged from `dev` by the **human developer** when a milestone is complete |
-| `dev` | Integration branch — **all feature/spec/docs PRs target `dev`** |
-| `feat/*`, `fix/*`, `spec/*`, `docs/*` | Short-lived work branches — always branch from `dev`, always PR back to `dev` |
+|--------|---------|
+| `main` | Production-ready — merged from `dev` by the **human developer** only |
+| `dev` | Integration branch — all PRs target `dev` |
+| `feat/*`, `fix/*`, `docs/*` | Short-lived work branches — always from `dev`, always PR to `dev` |
 
-**Never PR directly to `main`.** The AI always sets `dev` as the base branch when raising PRs.
-
-**`dev` → `main` is a human-only action.** The AI never raises a PR targeting `main` and never merges `dev` into `main`. This is a deliberate gate — the developer decides when a milestone is production-ready.
+**Never PR directly to `main`.** The AI always sets `dev` as the base branch.
 
 ---
 
 ## PR ↔ Issue Linking
 
-When the AI raises a PR for an issue, it does three things:
-
-1. **`Closes #N` in the PR body** — GitHub automatically closes the issue when the PR is merged and shows the link in both the PR and issue sidebars.
-2. **Comment on the issue** — The AI posts a comment on the issue itself:
-   > 🤖 PR raised: #42 — please review when ready.
-3. **Assign the PR to the repo owner** — Every PR is assigned to `the repo owner` so it appears in the developer's assigned PRs list and is easy to find.
-
-This means anyone watching the issue gets notified and can navigate to the PR without searching for it.
+When the AI raises a PR for an issue, it:
+1. Includes `Closes #N` in the PR body
+2. Posts a comment on the issue: *🤖 PR raised: #N — please review when ready.*
+3. Assigns the PR to the repo owner
 
 ---
 
-## Agent Conventions
+## Label-Driven Turns
 
-### Label-driven turns
+Labels signal whose turn it is to act.
 
-Labels signal whose turn it is to act. The AI monitors for `waiting-for-ai` on both issues and PRs.
+| Label | Meaning |
+|-------|---------|
+| `waiting-for-ai` | AI's turn — pick up, respond, implement, or iterate |
+| `waiting-for-human` | Human's turn — review, provide input, or sign off |
+| `action-ready` | Approved for implementation — AI starts coding without discussion |
+| `ai-error` | Claude hit an error — human needs to review before retrying |
 
-**On issues:**
-- Developer adds `waiting-for-ai` → AI picks up, responds or raises a PR, then swaps to `waiting-for-human`
-- Developer adds `action-ready` → AI implements without discussion, raises a PR, removes `action-ready`
-- If the AI has a blocking question when it sees `action-ready`, it removes `action-ready`, adds `waiting-for-human`, and posts the question as a comment. Developer answers and re-applies `action-ready` to proceed.
+**On `action-ready`:** if the AI has a blocking question, it removes `action-ready`, adds `waiting-for-human`, and posts the question as a comment. Developer answers and re-applies `action-ready` to proceed.
 
-**On PRs:**
-- Developer leaves a review and adds `waiting-for-ai` → AI addresses comments, pushes, swaps to `waiting-for-human`
-- No `action-ready` on PRs — a PR is already an implementation artefact
-
-**No labels = idle/backlog.** An issue without labels is simply waiting — neither the AI nor the developer is blocked.
-
-### "Iterate" shorthand
-
-When the developer sends `iterate`, `iterate issue`, or `iterate pr`, the AI will:
-
-1. Fetch the most recently active open issue or PR
-2. Read all new comments/activity since the last response
-3. Reply or act accordingly
-
-This is a lightweight text-based trigger for use alongside the label system.
-
----
-
-## Labels
-
-| Label | Usage |
-|-------|-------|
-| `waiting-for-ai` | AI's turn — discussion, spec iteration, or PR review iteration |
-| `waiting-for-human` | Human's turn — reviewing, providing input, or signing off |
-| `action-ready` | Issue approved for implementation — AI should start coding |
-
-Labels apply to both issues and PRs. No label = idle/backlog.
+No label = idle/backlog.
 
 ---
 
 ## Milestone
 
-All initial issues are assigned to the **MVP** milestone. This provides a progress view across all phases at a glance.
+All initial issues are assigned to the **MVP** milestone for a single-view progress dashboard.
