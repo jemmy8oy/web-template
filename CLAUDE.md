@@ -111,7 +111,7 @@ CI runs on PRs only (`ci.yml`). Image builds are manual (`docker-build-push.yml`
 - **PR assignment**: Every PR the AI raises must be assigned to `the repo owner`.
 - **Issue assignment**: Every issue the AI acts on must be assigned to `the repo owner`.
 - **Issue linking**: Every PR body must include `Closes #N`. The AI also comments on the issue: *🤖 PR raised: #N — please review when ready.*
-- **Labels**: After pushing changes and commenting on a PR, always apply the `waiting-for-human` label and remove `waiting-for-ai`. Apply `waiting-for-ai` when handing back to the AI (e.g. after raising a review comment).
+- **Labels**: After completing work, remove `waiting-for-ai` or `action-ready` — do NOT apply `waiting-for-human`. Anything without a trigger label is implicitly the human's turn. If blocked, remove the trigger label and post a comment.
 
 ## [1e] Formal Proposal Template
 

@@ -58,7 +58,6 @@ Post-[5] issues are not numbered. Use descriptive titles and the label system to
 
 ```bash
 gh label create "waiting-for-ai"    --color "7B61FF" --description "Waiting for Claude to pick this up"
-gh label create "waiting-for-human" --color "0E8A16" --description "Claude is done — waiting for human review"
 gh label create "ai-error"          --color "D93F0B" --description "Claude encountered an error — needs human attention"
 gh label create "action-ready"      --color "F9D0C4" --description "Ready for the next action"
 ```
@@ -218,12 +217,13 @@ Labels signal whose turn it is to act.
 
 | Label | Meaning |
 |-------|---------|
-| `waiting-for-ai` | AI's turn — pick up, respond, implement, or iterate |
-| `waiting-for-human` | Human's turn — review, provide input, or sign off |
-| `action-ready` | Approved for implementation — AI starts coding without discussion |
-| `ai-error` | Claude hit an error — human needs to review before retrying |
+| `waiting-for-ai` | AI's turn — read the issue, respond with a comment. Discussion only, no implementation. |
+| `action-ready` | AI's turn — implement the task and raise a PR. No discussion needed. |
+| `ai-error` | Claude hit an error — human needs to review and re-apply the trigger label to retry. |
 
-**On `action-ready`:** if the AI has a blocking question, it removes `action-ready`, adds `waiting-for-human`, and posts the question as a comment. Developer answers and re-applies `action-ready` to proceed.
+**No `waiting-for-human` label.** Anything without a trigger label is implicitly the human's turn — no label is needed to signal this.
+
+**On `action-ready`:** if the AI has a blocking question it cannot resolve, it removes `action-ready` and posts a comment. Developer answers and re-applies `action-ready` to proceed.
 
 No label = idle/backlog.
 
