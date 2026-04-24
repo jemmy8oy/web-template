@@ -37,9 +37,9 @@ function ghSilent(args) {
 // ── Labels ────────────────────────────────────────────────────────────────────
 
 const LABELS = [
-  { name: 'waiting-for-ai',    color: '2ea44f', description: "AI's turn — discussion, spec iteration, or PR review" },
-  { name: 'waiting-for-human', color: '0075ca', description: "Human's turn — reviewing, providing input, or signing off" },
-  { name: 'action-ready',      color: '7057ff', description: 'Issue approved for implementation — AI should start coding' },
+  { name: 'waiting-for-ai', color: '7B61FF', description: "AI's turn — discuss, spec iterate, or implement" },
+  { name: 'action-ready',   color: 'F9D0C4', description: 'Issue approved for implementation — AI should start coding' },
+  { name: 'ai-error',       color: 'D93F0B', description: 'Claude encountered an error — needs human attention' },
 ];
 
 function ensureLabels() {
@@ -75,13 +75,20 @@ function ensureMilestone() {
 
 const ISSUES = [
   {
-    title: '[1a] Set up pipeline secrets and variables',
+    title: '[1a] Set up labels, pipeline secrets and variables',
     body: `## Summary
 
-Configure CI/CD pipeline secrets and repository variables so automated workflows can build and deploy the app.
+**Human action.** Configure labels and CI/CD pipeline secrets so the repo is ready for the AI workflow.
 
 ## Acceptance Criteria
 
+- [ ] Three standard labels created on the repo:
+  \`\`\`bash
+  gh label create "waiting-for-ai" --color "7B61FF" --description "AI's turn — discuss, spec iterate, or implement"
+  gh label create "action-ready"   --color "F9D0C4" --description "Issue approved for implementation — AI should start coding"
+  gh label create "ai-error"       --color "D93F0B" --description "Claude encountered an error — needs human attention"
+  \`\`\`
+  *(These are also created by this script, so you may already be done.)*
 - [ ] Repository **Variables** added (Settings → Secrets and variables → Variables):
   - \`OCIR_REGISTRY\` — e.g. \`lhr.ocir.io\`
   - \`OCIR_NAMESPACE\` — your OCI tenancy namespace
@@ -91,309 +98,160 @@ Configure CI/CD pipeline secrets and repository variables so automated workflows
 
 ## AI Notes
 
-This issue is actioned by the developer, not the AI. Close it once secrets are configured.
+This issue is actioned by the developer, not the AI. Close it once labels and secrets are configured.
 `,
   },
   {
-    title: '[1b] Set up branch policies',
+    title: '[1b] Set up CI/CD pipeline and branch protection',
     body: `## Summary
 
-Configure branch protection rules so that \`main\` is developer-only and all agent work flows through \`dev\` via PRs.
+**AI action.** Apply \`waiting-for-ai\` to trigger.
+
+Set up GitHub Actions CI pipeline, Docker image build workflow, and branch protection rules.
 
 ## Acceptance Criteria
 
-- [ ] \`main\` branch created and protected (require PR, no direct push)
-- [ ] \`dev\` branch created — default branch for agent PRs
+- [ ] CI workflow (\`.github/workflows/ci.yml\`) — build + test on every PR
+- [ ] Docker build + push workflow (\`.github/workflows/docker-build-push.yml\`) — manual \`workflow_dispatch\`
+- [ ] Branch protection on \`main\`: require PR, no direct push
+- [ ] Branch protection on \`dev\`: require PR, no direct push
 - [ ] **"Automatically delete head branches"** enabled (Settings → General)
+- [ ] PR raised and merged
 
 ## AI Notes
 
-This issue is actioned by the developer. Close it once branch policies are in place.
+Trigger: \`waiting-for-ai\` applied to this issue.
+Action: Raise a PR adding the GitHub Actions workflows and configuring branch protection rules via \`gh api\`.
 `,
   },
   {
-    title: '[1c] Define high-level project spec, vision and external dependencies',
+    title: '[1c] Set up GitHub webhook',
     body: `## Summary
 
-Capture the product vision and scope so the AI can produce the first spec PR — covering epics, features, and external dependencies.
+**AI action.** Apply \`waiting-for-ai\` to trigger.
+
+Register the GitHub webhook on this repo so \`waiting-for-ai\` and \`action-ready\` labels automatically trigger Claude.
 
 ## Acceptance Criteria
 
-- [ ] Spec questionnaire completed (see below)
-- [ ] \`ai-ready\` label applied to this issue
-- [ ] AI raises a spec PR with vision statement, \`docs/epics/\`, \`docs/features/\`, and dependency notes
-- [ ] All ambiguities resolved via PR comments or \`needs-input\` issues
-- [ ] Spec PR reviewed and merged by developer
+- [ ] Webhook created on this repo:
+  - URL: \`https://balenthiran.co.uk/webhooks/claude\`
+  - Events: **Issues** + **Pull requests** only
+  - Secret: from cluster secret \`GITHUB_WEBHOOK_SECRET\`
+- [ ] Applying \`waiting-for-ai\` to an issue or PR triggers a Claude response without a manual Telegram prompt
+- [ ] PR raised and merged (or issue closed once webhook is confirmed working)
 
-## Spec Questionnaire
+## AI Notes
 
-Please answer the following, then add the \`ai-ready\` label:
+Trigger: \`waiting-for-ai\` applied to this issue.
+Action: Use the GitHub API (\`gh api repos/{owner}/{repo}/hooks\`) to register the webhook. Confirm it's listed and active.
+`,
+  },
+  {
+    title: '[1d] High-level design discussion',
+    body: `## Summary
+
+**Casual conversation in this issue.** Fill in the questionnaire below with rough answers — bullet points are fine. Apply \`waiting-for-ai\` when ready and Claude will respond with questions and proposals.
+
+Once the discussion settles, Claude will open a [1e] issue with a formal proposal for human review.
+
+## Design Questionnaire
 
 - **What problem does this product solve, and for whom?**
 
 - **What does a successful MVP look like?**
 
-- **Is Postgres required?** If so, any schema or domain hints?
+- **What are the key user workflows?** (e.g. "auth", "create a report", "view a dashboard")
 
-- **Any external data sources, APIs, or third-party integrations?**
+- **Are there external APIs, data sources, or third-party integrations?**
 
-- **Any auth providers, payment gateways, or other dependencies?**
+- **Auth requirements?** (none / email+password / OAuth — which providers?)
 
-- **What is explicitly out of scope for the MVP?**
-
-## AI Notes
-
-When this issue is labelled \`ai-ready\`:
-1. Read the questionnaire answers above
-2. Raise a spec PR containing: vision statement, \`docs/epics/*.md\`, \`docs/features/*.md\`, out-of-scope list, and external dependency notes
-3. Leave a PR comment for anything ambiguous — if unresolved after one round, open a \`needs-input\` issue
-`,
-  },
-  {
-    title: '[2a] Generate UI/UX design issues from approved spec',
-    body: `## Summary
-
-Once the spec PR from [1c] is merged, scan \`docs/features/\` for frontend features and create one \`[2] <Feature name> design\` issue per feature.
-
-## Acceptance Criteria
-
-- [ ] One \`[2] Feature name design\` issue created per frontend feature in the spec
-- [ ] Each issue assigned to the repo owner
-- [ ] This issue closed once all \`[2]\` issues are created
-
-## Dependencies
-
-Depends on [1c] spec PR being merged.
-
-## [2] Issue structure
-
-Each \`[2]\` issue the AI creates must follow this format:
-
-\`\`\`
-Design the <feature name> for <product name>.
-
-**Feature:** \`docs/features/<feature-file>.md\`
-
-**Open UX questions to resolve:**
-- <question from feature file>
-- <question from feature file>
-
-**Deliverables (in the design PR):**
-- [ ] ASCII mockup for each meaningful page/component state
-- [ ] ASCII mockup for each key interaction state (loading, error, empty)
-- [ ] Mermaid workflow diagram for each key user action
-- [ ] All open UX questions answered
-\`\`\`
+- **What is explicitly out of scope for MVP?**
 
 ## AI Notes
 
-Trigger: [1c] PR merged.
-Action: Read \`docs/features/\`, create one \`[2] <Feature> design\` issue per frontend feature using the structure above, assign each to the repo owner, then close this issue.
+Trigger: \`waiting-for-ai\` applied to this issue.
+Action: Read the questionnaire answers, ask follow-up questions in a comment, and propose resolutions to any ambiguities. Iterate until consensus is reached. Once settled, open a [1e] issue with the formal workflow + API proposal — then close this issue.
 `,
   },
   {
-    title: '[3a] Frontend tech decisions + user story spec',
+    title: '[2] DB entity design + migrations',
     body: `## Summary
 
-Once all \`[2]\` design issues are closed, raise a spec PR covering three things:
+**AI action.** Apply \`waiting-for-ai\` to trigger (after [1e] is approved).
 
-**Part A — Frontend tech decisions** (\`docs/tech-decisions-frontend.md\`)
-Propose and justify library choices before implementation begins:
-- UI component library (e.g. shadcn/ui, MUI, Mantine, Radix UI, or none)
-- Chart / visualisation library (e.g. Recharts, Chart.js, Nivo, Visx, D3)
-- Date handling (e.g. date-fns, dayjs, native \`Intl\`/Temporal)
-- Any other notable runtime dependencies
-
-**Part B — BDD user stories** (\`docs/user-stories-frontend.md\`)
-BDD (Behaviour-Driven Development) stories derived from the signed-off designs:
-*As a [persona], I want to [action] so that [outcome]* — with acceptance criteria referencing specific UI states from the ASCII mockups.
-
-**Part C — API skeleton**
-Endpoint contracts (path, params, response shapes) and RTK Query hooks table — included in the user stories doc. Defines what the backend skeleton must implement.
+AI produces the full database schema from the approved [1e] proposal.
 
 ## Acceptance Criteria
 
-- [ ] \`docs/tech-decisions-frontend.md\` — library proposals with rationale
-- [ ] \`docs/user-stories-frontend.md\` — BDD stories for every signed-off design
-- [ ] API skeleton section — endpoint contracts + RTK Query hooks table
-- [ ] Human review gate — developer must approve before merge
-- [ ] This issue closed on merge
-
-## Dependencies
-
-Depends on all \`[2]\` design issues being closed.
-
-## AI Notes
-
-Trigger: all \`[2]\` issues closed.
-Action: Raise a single PR with \`docs/tech-decisions-frontend.md\` (library proposals) and \`docs/user-stories-frontend.md\` (BDD stories + API skeleton). Stories reference chosen libraries where relevant. API skeleton documents response shapes as TypeScript interfaces and lists RTK Query hooks.
-`,
-  },
-  {
-    title: '[3b] Create frontend issues + backend skeleton',
-    body: `## Summary
-
-Once the [3a] spec PR is merged, do two things:
-
-**1 — Frontend implementation issues**
-Create individual \`[4] Feature name\` issues from the merged user story spec. Closely related stories (e.g. same component) may be grouped into one issue.
-
-**2 — Backend skeleton PR**
-Implement the API contracts from the [3a] spec as real ASP.NET Core Minimal API endpoints using \`Bogus\` (Faker for .NET). Seeded, deterministic data. No service layer, no database — just route handlers returning shaped fake data. OpenAPI spec auto-generated so \`npm run codegen\` gives the frontend its RTK Query hooks.
-
-## Acceptance Criteria
-
-- [ ] \`[4]\` issues created (one per story or grouped where appropriate)
-- [ ] \`docs/features/*.md\` updated with the GH issue numbers
-- [ ] Backend skeleton PR raised — Faker endpoints matching the API contracts in \`docs/user-stories-frontend.md\`
-- [ ] This issue closed once all \`[4]\` issues are created and skeleton PR is raised
-
-## Dependencies
-
-Depends on [3a] PR being merged.
-
-## AI Notes
-
-Trigger: [3a] PR merged.
-Action: (1) Read \`docs/user-stories-frontend.md\`, create \`[4]\` issues, update \`docs/features/*.md\`. (2) Raise a backend skeleton PR implementing the API endpoints with Bogus-generated data in the WebApi project.
-`,
-  },
-  {
-    title: '[5a] Create backend design spec',
-    body: `## Summary
-
-Once all frontend implementation issues (\`[4]\`) are closed, raise a backend design PR covering data models, API contracts, EF Core entities, service architecture, and an ER diagram.
-
-## Acceptance Criteria
-
-- [ ] Backend design PR raised containing:
-  - [ ] Mermaid ER diagram
-  - [ ] Entity and relationship definitions
-  - [ ] Service layer outline (SRP — see \`docs/specs/backend-srp.md\`)
-  - [ ] In-process integration test scenarios (what, not how)
-  - [ ] Any ADR notes
-- [ ] Developer reviews and merges
-- [ ] This issue closed on merge
-
-## Dependencies
-
-Depends on all \`[4]\` frontend issues being closed.
-
-## AI Notes
-
-Trigger: all \`[4]\` issues closed.
-Action: Raise a backend design PR. The OpenAPI spec generated from the skeleton app is the source of truth for API contracts. Follow \`docs/specs/backend-architecture.md\` and \`docs/specs/backend-srp.md\`.
-`,
-  },
-  {
-    title: '[5b] Generate backend user stories from approved backend design',
-    body: `## Summary
-
-Once the backend design PR from [5a] is merged, raise a backend user story spec PR.
-
-## Acceptance Criteria
-
-- [ ] Backend user story spec PR raised in \`docs/\`
-- [ ] Human review gate — developer must approve before merge
-- [ ] This issue closed on merge
-
-## Dependencies
-
-Depends on [5a] PR being merged.
-
-## AI Notes
-
-Trigger: [5a] PR merged.
-Action: Raise a PR adding \`docs/user-stories-backend.md\` with BDD-style stories derived from the API contracts and backend design.
-`,
-  },
-  {
-    title: '[5c] Create backend GitHub issues from user story spec',
-    body: `## Summary
-
-Once the backend user story spec PR from [5b] is merged, create individual \`[6] Feature name\` backend implementation issues — one per story.
-
-## Acceptance Criteria
-
-- [ ] One \`[6] <Story>\` issue created per story in the merged backend user story spec
-- [ ] Each issue uses the **User Story** issue template
-- [ ] \`docs/features/*.md\` updated with the GH issue numbers
-- [ ] This issue closed once all \`[6]\` issues are created
-
-## Dependencies
-
-Depends on [5b] PR being merged.
-
-## AI Notes
-
-Trigger: [5b] PR merged.
-Action: Read \`docs/user-stories-backend.md\`, create one \`[6] <Story>\` issue per story, update \`docs/features/*.md\` with issue numbers, then close this issue.
-`,
-  },
-  {
-    title: '[6a] Hook up Postgres DB (if required)',
-    body: `## Summary
-
-Wire up the real Postgres database — EF Core migrations, connection config, and schema — replacing the skeleton faker data.
-
-## Acceptance Criteria
-
-- [ ] EF Core migrations created and applied
-- [ ] Connection string config documented
-- [ ] All skeleton faker routes replaced or wired to real data
+- [ ] Mermaid ER diagram in the PR body
+- [ ] EF Core entity classes in \`EntityModels/\`
+- [ ] Relationships, indexes, and constraints defined
+- [ ] Initial EF Core migration created and applied locally
+- [ ] No business logic — schema only
 - [ ] PR raised and merged
 
 ## Dependencies
 
-Depends on all \`[5]\` backend implementation issues being closed.
+Depends on [1e] being approved.
 
 ## AI Notes
 
-Trigger: all \`[6]\` issues closed (or skip if Postgres was marked not required in [1c]).
-Action: Scaffold EF Core migrations, wire connection string from K8s secret, raise a PR.
+Trigger: \`waiting-for-ai\` applied to this issue.
+Action: Read the [1e] proposal (user workflows + required endpoints), design the EF Core entities and relationships, create the initial migration, and raise a PR. No service layer, no endpoint logic — schema only.
 `,
   },
   {
-    title: '[7a] Share MVP — publish YouTube walkthrough and gather user feedback',
+    title: '[3] Backend skeleton',
     body: `## Summary
 
-Draft a YouTube walkthrough script and outline for the MVP launch.
+**AI action.** Apply \`waiting-for-ai\` to trigger (after [2] is merged).
+
+Stub all API endpoints from [1e] using real EF Core entities and Faker-generated data — no business logic.
 
 ## Acceptance Criteria
 
-- [ ] AI drafts a walkthrough script covering key features and user journeys
-- [ ] Developer records and publishes the video
-- [ ] Feedback gathered from initial users
+- [ ] All endpoints from [1e] implemented as .NET Minimal API routes
+- [ ] Faker-generated DTOs returned from each endpoint (deterministic seed)
+- [ ] OpenAPI spec auto-generated from the running app
+- [ ] RTK Query codegen run — \`generatedApi.ts\` up to date
+- [ ] PR raised and merged
 
 ## Dependencies
 
-Depends on [6a] (or all backend stories) being merged.
+Depends on [2] (DB entity design) being merged.
 
 ## AI Notes
 
-Trigger: MVP is deployed and stable.
-Action: Draft a YouTube script with an intro, feature walkthrough sections, and a call to action. Structure it as a \`docs/mvp-walkthrough-script.md\` PR.
+Trigger: \`waiting-for-ai\` applied to this issue.
+Action: Add Minimal API route handlers for every endpoint in [1e]. Wire them to the real EF Core entities but return Bogus-generated data — no real queries yet. Run \`dotnet run\` to generate the OpenAPI spec, then run \`npm run codegen\` to update \`generatedApi.ts\`. Raise a PR.
 `,
   },
   {
-    title: '[7b] Create production refinement tickets',
+    title: '[4] Frontend MVP',
     body: `## Summary
 
-Generate production refinement tickets covering performance, security, scaling, and testing gaps.
+**AI action.** Apply \`waiting-for-ai\` to trigger (after [3] is merged).
+
+Implement all user workflows from [1e] as React pages, wired to the RTK Query hooks from the skeleton backend.
 
 ## Acceptance Criteria
 
-- [ ] Refinement tickets created covering: performance, security hardening, scaling considerations, and test coverage gaps
+- [ ] All user workflows from [1e] implemented as React pages/components
+- [ ] Wired to RTK Query hooks (Faker data from skeleton backend)
+- [ ] Every workflow is functional end to end — nothing is a dead end
+- [ ] Minimal styling — MVP, not a polished product
+- [ ] PR raised and merged
 
 ## Dependencies
 
-Depends on [7a].
+Depends on [3] (backend skeleton) being merged.
 
 ## AI Notes
 
-⚠️ **Confirm developer interest before actioning this issue.**
-Trigger: Developer explicitly asks the AI to action this.
-Action: Audit the codebase and raise targeted issues for: N+1 queries, missing indexes, auth hardening, rate limiting, load testing, and any coverage gaps identified during implementation.
+Trigger: \`waiting-for-ai\` applied to this issue.
+Action: Implement all user workflows defined in [1e] as React components. Use the generated RTK Query hooks from \`generatedApi.ts\`. Keep styling minimal. Once all workflows are functional, raise a PR. After [4] is merged, open one [5] issue per backend feature.
 `,
   },
 ];
@@ -429,7 +287,11 @@ async function run() {
 
   log('');
   log('✅ Done. All initial SDD issues created.');
-  log('   Next step: work through Phase 1 issues, then add the waiting-for-ai label to [1c] once the spec questionnaire is complete.');
+  log('   Next steps:');
+  log('   1. Complete [1a] — add secrets, then close the issue');
+  log('   2. Apply waiting-for-ai to [1b] to kick off CI/CD setup');
+  log('   3. Apply waiting-for-ai to [1c] to set up the webhook');
+  log('   4. Fill in [1d] questionnaire and apply waiting-for-ai to start the design discussion');
 }
 
 run().catch(err => {

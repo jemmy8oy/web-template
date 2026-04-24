@@ -41,11 +41,12 @@ After [5]: normal project — issues raised incrementally as needed. No fixed nu
 - Create the four standard labels: `waiting-for-ai`, `waiting-for-human`, `ai-error`, `action-ready`
 
 ```bash
-gh label create "waiting-for-ai"    --color "7B61FF" --description "Waiting for Claude to pick this up"
-gh label create "waiting-for-human" --color "0E8A16" --description "Claude is done — waiting for human review"
-gh label create "ai-error"          --color "D93F0B" --description "Claude encountered an error — needs human attention"
-gh label create "action-ready"      --color "F9D0C4" --description "Ready for the next action"
+gh label create "waiting-for-ai" --color "7B61FF" --description "AI's turn — discuss, spec iterate, or implement"
+gh label create "action-ready"   --color "F9D0C4" --description "Issue approved for implementation — AI should start coding"
+gh label create "ai-error"       --color "D93F0B" --description "Claude encountered an error — needs human attention"
 ```
+
+No `waiting-for-human` label — anything without a trigger label is implicitly the human's turn.
 
 ---
 
