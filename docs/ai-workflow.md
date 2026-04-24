@@ -26,12 +26,12 @@ Created automatically at bootstrap. Apply `waiting-for-ai` to each when ready to
 | [1c] | Set up GitHub webhook |
 | [1d] | High-level design discussion |
 | [1e] | *(AI creates this from [1d] discussion)* Formal workflow + API proposal |
-| [2]  | DB entity design + migrations |
-| [3]  | Backend skeleton |
-| [4]  | Frontend MVP |
+| [2]  | Backend skeleton |
+| [3]  | Frontend MVP |
+| [4]  | DB entity design + migrations |
 | [5] *per feature* | Backend implementation — one issue per feature |
 
-> **[1e]** is not created at bootstrap — the AI opens it once [1d] discussion reaches consensus.
+> **[1e]** is not created at bootstrap — the AI raises a PR once [1d] discussion reaches consensus.
 > **[5] issues** are not created at bootstrap — the AI opens one per feature once [4] is merged.
 
 ---
@@ -68,12 +68,15 @@ gh label create "action-ready"      --color "F9D0C4" --description "Ready for th
 ---
 
 ### [1b] — CI/CD Pipeline and Branch Protection
-**AI action.** Apply `waiting-for-ai` to trigger.
+**Human action.** Pipeline setup requires repository secrets, and branch protection rules require admin access the bot doesn't have.
 
-AI raises a PR setting up:
-- GitHub Actions CI workflow (build + test on PR)
-- Docker image build + push workflow (manual `workflow_dispatch`)
-- Branch protection rules for `main` and `dev`
+Human sets up:
+- GitHub Actions CI workflow (`.github/workflows/ci.yml`) — build + test on every PR
+- Docker image build + push workflow (`.github/workflows/docker-build-push.yml`) — manual `workflow_dispatch`
+- Branch protection rules for `main` and `dev` (Settings → Branches)
+- **"Automatically delete head branches"** enabled (Settings → General)
+
+Close the issue when done.
 
 ---
 
@@ -104,60 +107,32 @@ AI responds with follow-up questions and proposals for any ambiguities. Once set
 ---
 
 ### [1e] — Formal Workflow + API Proposal
-**AI opens as a new issue.** Human reviews and approves.
+**AI raises a PR** once [1d] discussion has settled.
 
-The issue contains:
+The PR adds `docs/specs/proposal.md` containing:
+- **User workflow descriptions** — bullet-point list of what the user can do in each feature area
+- **Mermaid flow diagrams** — one diagram per key workflow (auth, main CRUD flows, etc.)
+- **Required API endpoints table** — method, path, and purpose for every endpoint
+- **External dependencies table** — third-party services, auth providers, payment gateways
+- **Open decisions** — any unresolved choices, each with a concrete recommendation and rationale
 
-```
-## User Workflows
-
-### [Workflow name]
-- User can [action]
-- User can [action]
-
-## External Dependencies
-
-| Dependency | Purpose | Notes |
-|------------|---------|-------|
-
-## Required API Endpoints
-
-| Method | Path | Purpose |
-|--------|------|---------|
-
-## Open decisions
-- [decision] — Proposal: [recommendation]. Rationale: [reason]. ✅ Unless you disagree?
-```
-
-Apply `waiting-for-ai` to hand back after comments. AI iterates until merged/approved.
+Human reviews and merges. Apply `waiting-for-ai` on the PR after comments to iterate.
 
 ---
 
-### [2] — DB Entity Design
+### [2] — Backend Skeleton
 **AI action.** Apply `waiting-for-ai` to trigger.
 
 AI raises a PR containing:
-- Mermaid ER diagram
-- EF Core entity classes in `EntityModels/`
-- Relationships, indexes, constraints
-- Initial EF Core migration
-
-No business logic. Schema only.
-
----
-
-### [3] — Backend Skeleton
-**AI action.** Apply `waiting-for-ai` to trigger.
-
-AI raises a PR containing:
-- All endpoints from [1e] stubbed in .NET Minimal API routes
-- Faker-generated DTOs returned from each endpoint
-- OpenAPI spec generated from the running app
+- All endpoints from [1e] stubbed as .NET Minimal API routes
+- Simple DTO classes (no EF Core entities yet — DB design comes after the frontend validates the shape)
+- Faker-generated responses from each endpoint (deterministic seed)
+- OpenAPI spec auto-generated from the running app
 - RTK Query codegen run — `generatedApi.ts` up to date
 
 ---
 
-### [4] — Frontend MVP
+### [3] — Frontend MVP
 **AI action.** Apply `waiting-for-ai` to trigger.
 
 AI raises a PR containing:
@@ -165,6 +140,19 @@ AI raises a PR containing:
 - Wired to RTK Query hooks (Faker data from skeleton backend)
 - Every workflow is functional end to end
 - Minimal styling — MVP, not a polished product
+
+---
+
+### [4] — DB Entity Design
+**AI action.** Apply `waiting-for-ai` to trigger (after [3] is merged).
+
+Now that the frontend validates the data shape, AI raises a PR containing:
+- Mermaid ER diagram
+- EF Core entity classes in `EntityModels/`
+- Relationships, indexes, and constraints
+- Initial EF Core migration
+
+No business logic. Schema only.
 
 ---
 

@@ -17,13 +17,13 @@ A structured development process designed to get from idea to working MVP in as 
 | Phase | Name | Who leads | Output |
 |-------|------|-----------|--------|
 | [1a] | Project setup | Human | Repo created, bot access granted, secrets configured |
-| [1b] | CI/CD setup | AI | Pipeline, branch protection, image build wired |
+| [1b] | CI/CD setup | Human | Pipeline, branch protection, image build wired |
 | [1c] | Webhook setup | AI | `waiting-for-ai` label workflow live on the repo |
 | [1d] | High-level design discussion | Human + AI | Agreed user workflows, external deps, auth approach |
-| [1e] | Formal workflow + API proposal | AI | Structured doc: all workflows, endpoints, dependencies |
-| [2] | DB entity design | AI | EF Core entities, relationships, initial migration |
-| [3] | Backend skeleton | AI | All endpoints stubbed, wired to real schema, Faker data |
-| [4] | Frontend MVP | AI | Functional UI wired to stub API — works, not polished |
+| [1e] | Formal workflow + API proposal | AI | PR: proposal doc with workflows, mermaid diagrams, endpoints |
+| [2] | Backend skeleton | AI | All endpoints stubbed with Faker data, OpenAPI + RTK codegen |
+| [3] | Frontend MVP | AI | Functional UI wired to stub API — works, not polished |
+| [4] | DB entity design | AI | EF Core entities, relationships, initial migration |
 | [5] | Backend — feature by feature | AI | Real business logic, feature by feature, TDD |
 
 After [5]: normal project — issues raised incrementally as needed. No fixed numbering.
@@ -38,7 +38,7 @@ After [5]: normal project — issues raised incrementally as needed. No fixed nu
 - Create the GitHub repo
 - Grant the bot's GitHub App access to the repo
 - Configure repository secrets (CI/CD, OCIR credentials, etc.)
-- Create the four standard labels: `waiting-for-ai`, `waiting-for-human`, `ai-error`, `action-ready`
+- Create the three standard labels: `waiting-for-ai`, `action-ready`, `ai-error`
 
 ```bash
 gh label create "waiting-for-ai" --color "7B61FF" --description "AI's turn — discuss, spec iterate, or implement"
@@ -51,13 +51,15 @@ No `waiting-for-human` label — anything without a trigger label is implicitly 
 ---
 
 ### [1b] — CI/CD Setup
-**AI action.** Apply `waiting-for-ai` to the [1b] issue to trigger.
+**Human action.** Pipeline setup requires repository secrets, and branch protection rules require admin access the bot doesn't have.
 
-AI sets up:
-- GitHub Actions CI pipeline (build + test on PR)
-- Docker image build + push workflow (manual trigger)
-- Branch protection rules for `main` and `dev`
-- Helm chart base configuration
+Human sets up:
+- GitHub Actions CI pipeline (`.github/workflows/ci.yml`) — build + test on every PR
+- Docker image build + push workflow (`.github/workflows/docker-build-push.yml`) — manual trigger
+- Branch protection rules for `main` and `dev` (Settings → Branches)
+- **"Automatically delete head branches"** enabled (Settings → General)
+
+Close the issue when done.
 
 ---
 
@@ -85,90 +87,63 @@ Human opens a [1d] issue and answers the following prompts (rough answers are fi
 - Auth requirements? (none / email+password / OAuth — which providers?)
 - What is explicitly out of scope for MVP?
 
-AI asks follow-up questions in the issue comments and proposes resolutions to any ambiguities. Once the discussion has settled, AI opens a [1e] issue.
+AI asks follow-up questions in the issue comments and proposes resolutions to any ambiguities. Once the discussion has settled, AI raises a [1e] PR.
 
 **Goal:** consensus on scope and major architectural decisions before anything is formalised.
 
 ---
 
 ### [1e] — Formal Workflow + API Proposal
-**AI opens as a new issue once [1d] discussion has settled.**
+**AI raises a PR** once [1d] discussion has settled.
 
-The [1e] issue contains a structured proposal:
+The PR adds `docs/specs/proposal.md` containing:
+- **User workflow descriptions** — bullet-point list of what the user can do in each feature area
+- **Mermaid flow diagrams** — one diagram per key workflow (auth, main CRUD flows, etc.)
+- **Required API endpoints table** — method, path, and purpose for every endpoint
+- **External dependencies table** — third-party services, auth providers, payment gateways
+- **Open decisions** — any unresolved choices, each with a concrete recommendation and rationale
 
-```
-## User Workflows
-
-### Auth
-- User registers with email + password
-- User logs in
-- User resets password via email link
-
-### [Feature name]
-- User can [action]
-- User can [action]
-
-## External Dependencies
-
-| Dependency | Purpose | Notes |
-|------------|---------|-------|
-| SendGrid | Transactional email | Password reset, confirmations |
-| Stripe | Payments | Post-MVP |
-
-## Required API Endpoints
-
-| Method | Path | Purpose |
-|--------|------|---------|
-| POST | /api/auth/register | Create account |
-| POST | /api/auth/login | Return JWT |
-| GET  | /api/[resource] | ... |
-
-## Open decisions (if any)
-- [decision] — Proposal: [recommendation]. Rationale: [reason]. ✅ Unless you disagree?
-```
-
-Human reviews and comments. AI iterates until approved. Apply `waiting-for-ai` to hand back to AI after comments.
+Human reviews and merges. Apply `waiting-for-ai` on the PR after comments to iterate.
 
 ---
 
-### [2] — DB Entity Design
+### [2] — Backend Skeleton
 **AI action.** Apply `waiting-for-ai` to the [2] issue to trigger.
 
 AI produces a PR containing:
+- All endpoints from [1e] stubbed as .NET Minimal API routes
+- Simple DTO classes (no EF Core entities yet — DB design comes after the frontend validates the shape)
+- Faker-generated responses from each endpoint (deterministic seed)
+- OpenAPI spec auto-generated from the running app
+- RTK Query codegen run — `generatedApi.ts` up to date
+
+**Goal:** a running API with realistic fake data for every endpoint so the frontend can be built against real hooks.
+
+---
+
+### [3] — Frontend MVP
+**AI action.** Apply `waiting-for-ai` to the [3] issue to trigger.
+
+AI produces a PR containing:
+- All user workflows from [1e] implemented as React pages/components
+- Wired to RTK Query hooks (Faker data from skeleton backend)
+- Functional — every workflow works end to end
+- Unstyled / minimally styled — this is an MVP, not a polished product
+
+**Goal:** a working, demonstrable product. Every workflow the human listed in [1d] is clickable.
+
+---
+
+### [4] — DB Entity Design
+**AI action.** Apply `waiting-for-ai` to the [4] issue to trigger (after [3] is merged).
+
+Now that the frontend has validated the data shape, AI produces a PR containing:
 - Mermaid ER diagram
 - EF Core entity classes in `EntityModels/`
 - Relationships, indexes, and constraints
 - Initial EF Core migration
 
 No business logic. No service layer. Just the schema.
-
-**Why before the skeleton?** EF Core entities are the foundation of the type system. Stubbing endpoints against a real schema (even with Faker data) means the API contract is correct from day one and codegen produces the right hooks.
-
----
-
-### [3] — Backend Skeleton
-**AI action.** Apply `waiting-for-ai` to the [3] issue to trigger.
-
-AI produces a PR containing:
-- All endpoints from [1e] stubbed in .NET Minimal API routes
-- Faker-generated DTOs returned from each endpoint
-- OpenAPI spec auto-generated from the running app
-- RTK Query codegen run against the spec — `generatedApi.ts` up to date
-
-**Goal:** a running API that returns realistic fake data for every endpoint, so the frontend can be built against real hooks.
-
----
-
-### [4] — Frontend MVP
-**AI action.** Apply `waiting-for-ai` to the [4] issue to trigger.
-
-AI produces a PR containing:
-- All user workflows from [1e] implemented as React pages/components
-- Wired to RTK Query hooks (real API calls, Faker data on the backend)
-- Functional — every workflow works end to end
-- Unstyled / minimally styled — this is an MVP, not a polished product
-
-**Goal:** a working, demonstrable product. Every workflow the human listed in [1d] is clickable.
 
 ---
 
@@ -234,13 +209,13 @@ This prevents the same debate happening again and creates a searchable audit tra
 
 ```
 [1a] Project setup        (human)
-[1b] CI/CD setup          (AI)
+[1b] CI/CD setup          (human)
 [1c] Webhook setup        (AI)
 [1d] Design discussion    (human + AI, casual)
-[1e] Formal proposal      (AI opens, human approves)
-[2]  DB entity design     (AI → PR)
-[3]  Backend skeleton     (AI → PR, Faker data)
-[4]  Frontend MVP         (AI → PR, all workflows working)
+[1e] Formal proposal      (AI → PR: workflows, mermaid, endpoints)
+[2]  Backend skeleton     (AI → PR, Faker data)
+[3]  Frontend MVP         (AI → PR, all workflows working)
+[4]  DB entity design     (AI → PR, EF Core entities + migration)
 [5]  Backend per feature  (AI → PR per feature, TDD)
      → normal project
 ```

@@ -105,9 +105,7 @@ This issue is actioned by the developer, not the AI. Close it once labels and se
     title: '[1b] Set up CI/CD pipeline and branch protection',
     body: `## Summary
 
-**AI action.** Apply \`waiting-for-ai\` to trigger.
-
-Set up GitHub Actions CI pipeline, Docker image build workflow, and branch protection rules.
+**Human action.** Pipeline setup requires repository secrets, and branch protection rules require admin access the bot doesn't have.
 
 ## Acceptance Criteria
 
@@ -116,12 +114,8 @@ Set up GitHub Actions CI pipeline, Docker image build workflow, and branch prote
 - [ ] Branch protection on \`main\`: require PR, no direct push
 - [ ] Branch protection on \`dev\`: require PR, no direct push
 - [ ] **"Automatically delete head branches"** enabled (Settings → General)
-- [ ] PR raised and merged
 
-## AI Notes
-
-Trigger: \`waiting-for-ai\` applied to this issue.
-Action: Raise a PR adding the GitHub Actions workflows and configuring branch protection rules via \`gh api\`.
+Close this issue when done.
 `,
   },
   {
@@ -172,16 +166,69 @@ Once the discussion settles, Claude will open a [1e] issue with a formal proposa
 ## AI Notes
 
 Trigger: \`waiting-for-ai\` applied to this issue.
-Action: Read the questionnaire answers, ask follow-up questions in a comment, and propose resolutions to any ambiguities. Iterate until consensus is reached. Once settled, open a [1e] issue with the formal workflow + API proposal — then close this issue.
+Action: Read the questionnaire answers, ask follow-up questions in a comment, and propose resolutions to any ambiguities. Iterate until consensus is reached. Once settled, raise a [1e] PR with the formal workflow + API proposal — then close this issue.
 `,
   },
   {
-    title: '[2] DB entity design + migrations',
+    title: '[2] Backend skeleton',
     body: `## Summary
 
-**AI action.** Apply \`waiting-for-ai\` to trigger (after [1e] is approved).
+**AI action.** Apply \`waiting-for-ai\` to trigger (after [1e] PR is merged).
 
-AI produces the full database schema from the approved [1e] proposal.
+Stub all API endpoints from [1e] using simple DTOs and Faker-generated data — no EF Core entities yet. The DB design comes after the frontend validates the data shape.
+
+## Acceptance Criteria
+
+- [ ] All endpoints from [1e] implemented as .NET Minimal API routes
+- [ ] Simple DTO classes (no EF Core entities — DB design comes in [4])
+- [ ] Faker-generated responses from each endpoint (deterministic seed)
+- [ ] OpenAPI spec auto-generated from the running app
+- [ ] RTK Query codegen run — \`generatedApi.ts\` up to date
+- [ ] PR raised and merged
+
+## Dependencies
+
+Depends on [1e] PR being merged.
+
+## AI Notes
+
+Trigger: \`waiting-for-ai\` applied to this issue.
+Action: Read \`docs/specs/proposal.md\` from the merged [1e] PR. Add Minimal API route handlers for every endpoint. Use simple DTO classes and Bogus-generated data — no real DB queries yet. Run \`dotnet run\` to generate the OpenAPI spec, then run \`npm run codegen\` to update \`generatedApi.ts\`. Raise a PR.
+`,
+  },
+  {
+    title: '[3] Frontend MVP',
+    body: `## Summary
+
+**AI action.** Apply \`waiting-for-ai\` to trigger (after [2] is merged).
+
+Implement all user workflows from [1e] as React pages, wired to the RTK Query hooks from the skeleton backend.
+
+## Acceptance Criteria
+
+- [ ] All user workflows from [1e] implemented as React pages/components
+- [ ] Wired to RTK Query hooks (Faker data from [2] skeleton backend)
+- [ ] Every workflow is functional end to end — nothing is a dead end
+- [ ] Minimal styling — MVP, not a polished product
+- [ ] PR raised and merged
+
+## Dependencies
+
+Depends on [2] (backend skeleton) being merged.
+
+## AI Notes
+
+Trigger: \`waiting-for-ai\` applied to this issue.
+Action: Implement all user workflows from \`docs/specs/proposal.md\` as React components using the generated RTK Query hooks. Keep styling minimal. Raise a PR once all workflows are functional end to end.
+`,
+  },
+  {
+    title: '[4] DB entity design + migrations',
+    body: `## Summary
+
+**AI action.** Apply \`waiting-for-ai\` to trigger (after [3] is merged).
+
+Now that the frontend has validated the data shape, design the real EF Core entities and create the initial migration.
 
 ## Acceptance Criteria
 
@@ -194,64 +241,12 @@ AI produces the full database schema from the approved [1e] proposal.
 
 ## Dependencies
 
-Depends on [1e] being approved.
+Depends on [3] (frontend MVP) being merged.
 
 ## AI Notes
 
 Trigger: \`waiting-for-ai\` applied to this issue.
-Action: Read the [1e] proposal (user workflows + required endpoints), design the EF Core entities and relationships, create the initial migration, and raise a PR. No service layer, no endpoint logic — schema only.
-`,
-  },
-  {
-    title: '[3] Backend skeleton',
-    body: `## Summary
-
-**AI action.** Apply \`waiting-for-ai\` to trigger (after [2] is merged).
-
-Stub all API endpoints from [1e] using real EF Core entities and Faker-generated data — no business logic.
-
-## Acceptance Criteria
-
-- [ ] All endpoints from [1e] implemented as .NET Minimal API routes
-- [ ] Faker-generated DTOs returned from each endpoint (deterministic seed)
-- [ ] OpenAPI spec auto-generated from the running app
-- [ ] RTK Query codegen run — \`generatedApi.ts\` up to date
-- [ ] PR raised and merged
-
-## Dependencies
-
-Depends on [2] (DB entity design) being merged.
-
-## AI Notes
-
-Trigger: \`waiting-for-ai\` applied to this issue.
-Action: Add Minimal API route handlers for every endpoint in [1e]. Wire them to the real EF Core entities but return Bogus-generated data — no real queries yet. Run \`dotnet run\` to generate the OpenAPI spec, then run \`npm run codegen\` to update \`generatedApi.ts\`. Raise a PR.
-`,
-  },
-  {
-    title: '[4] Frontend MVP',
-    body: `## Summary
-
-**AI action.** Apply \`waiting-for-ai\` to trigger (after [3] is merged).
-
-Implement all user workflows from [1e] as React pages, wired to the RTK Query hooks from the skeleton backend.
-
-## Acceptance Criteria
-
-- [ ] All user workflows from [1e] implemented as React pages/components
-- [ ] Wired to RTK Query hooks (Faker data from skeleton backend)
-- [ ] Every workflow is functional end to end — nothing is a dead end
-- [ ] Minimal styling — MVP, not a polished product
-- [ ] PR raised and merged
-
-## Dependencies
-
-Depends on [3] (backend skeleton) being merged.
-
-## AI Notes
-
-Trigger: \`waiting-for-ai\` applied to this issue.
-Action: Implement all user workflows defined in [1e] as React components. Use the generated RTK Query hooks from \`generatedApi.ts\`. Keep styling minimal. Once all workflows are functional, raise a PR. After [4] is merged, open one [5] issue per backend feature.
+Action: Read \`docs/specs/proposal.md\` and the existing DTO classes from [2] to understand the data shape the frontend uses. Design EF Core entities and relationships to match. Create the initial migration. Raise a PR with a Mermaid ER diagram and no service/business logic. After this is merged, open one [5] issue per backend feature.
 `,
   },
 ];
