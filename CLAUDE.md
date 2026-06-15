@@ -113,6 +113,54 @@ CI runs on PRs only (`ci.yml`). Image builds are manual (`docker-build-push.yml`
 - **Issue linking**: Every PR body must include `Closes #N`. The AI also comments on the issue: *🤖 PR raised: #N — please review when ready.*
 - **Labels**: After pushing changes and commenting on a PR, always apply the `waiting-for-human` label and remove `waiting-for-ai`. Apply `waiting-for-ai` when handing back to the AI (e.g. after raising a review comment).
 
+## Notification Rule (mandatory)
+Always assign the repository owner to every issue and PR:
+- `gh issue create ... --assignee $(gh repo view --json owner --jq .owner.login)`
+- `gh pr create   ... --assignee $(gh repo view --json owner --jq .owner.login)`
+- Finding owner: Use `gh repo view --json owner --jq .owner.login`. Cache it — don't call multiple times.
+- Verification: After creating issues/PRs, run `gh issue view <N> --json assignees` to confirm.
+
+## Multi-pass Issue Behaviour
+
+Before posting any comment on an issue, read ALL existing comments in full.
+
+- If you have already asked clarifying questions and the owner has answered them: proceed with the implementation using those answers. Do not re-ask.
+- If you have already proposed a plan or analysis: do not repeat it — continue from where you left off.
+- If a previous pass left a structured summary comment (see "Structured Pass Summaries" below): read that summary first and skip re-reading files already listed there.
+
+When a task is **partially complete** (ran out of time, blocking question posted):
+1. Post a clearly labelled partial pass comment: `## Pass N — Partial`
+2. List what was completed and what remains
+3. If you asked a blocking question: remove `action-ready`, wait for developer's answer
+4. If partial due to scope/time (no blocking question): re-apply `action-ready` yourself
+
+At the end of every partial pass, state explicitly: **"Re-apply `action-ready` (not `waiting-for-ai`) to continue implementation."**
+
+When a task is **complete** (PR raised):
+1. Post: `🤖 PR raised: #N — please review when ready.`
+2. Remove `action-ready` — the ball is in the developer's court
+
+## Structured Pass Summaries
+
+At the end of every AI run (partial or complete), leave a structured summary comment:
+
+```
+## AI Pass N Summary — YYYY-MM-DD
+
+**Status:** [completed / partial / blocked]
+
+**Completed this pass:**
+- [item] ✅
+
+**Not completed:**
+- [item]
+
+**Files to skip re-reading next pass:**
+- [file] ([reason])
+
+**Next trigger:** [what the developer needs to do]
+```
+
 ## [2] Design Issue Template
 
 When creating `[2]` UI/UX design issues (via `[2a]`), use this structure:
