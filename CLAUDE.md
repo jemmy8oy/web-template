@@ -127,6 +127,16 @@ This is mandatory — the developer has no other way to know which label trigger
 
 ---
 
+## AI Behaviour Mode
+
+At the start of each project, check `docs/specs/proposal.md` (from [1e]) for the AI Behaviour Preference set in [1d]:
+
+- **Assume & Document:** Implement directly. Surface all non-obvious choices in the PR's Assumptions & Decisions table.
+- **Ask First:** Post clarifying questions before starting implementation. Wait for answers.
+- **Mixed (default if not specified):** Assume minor/stylistic choices. Ask only for major architectural decisions with no sensible default.
+
+---
+
 ## [1e] Formal Proposal Template
 
 When the AI opens a `[1e]` issue from a [1d] discussion, use this structure:
