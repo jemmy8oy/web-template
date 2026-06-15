@@ -1,378 +1,204 @@
 # Spec Driven Development (SDD) Workflow
 
-A structured, iterative development process designed to maximise in-chat planning before any code is written — ensuring the full scope of the application is understood before committing to implementation.
+A structured development process designed to get from idea to working MVP in as few passes as possible — with the AI doing the heavy lifting and the human reviewing and correcting, not answering endless questions.
 
 ## Core Philosophy
 
-- **Iterate in chat first** — decisions made in chat are cheap; decisions made in code are expensive.
-- **Defer implementation details** — don't think about databases or frameworks until the product shape is fully understood.
-- **Let the spec drive the code** — user stories, mockups, and API contracts are the source of truth.
-- **Tests are a spec artefact** — a unit test is a more precise, executable version of a spec step. Writing tests before implementation is not extra work; it is the spec becoming code.
-- **Strict phase linearity** — each phase has a gate. Do not produce artefacts that belong to a later phase. If detail is discovered early, note it as an open question and defer it to the correct phase.
-
-## Phase gates — do not cross
-
-> **Terminology note:** "GitHub Phase N" refers to the phase numbering used in issue titles (`[1c]`, `[2]`, `[3]`, etc.) and in `docs/ai-workflow.md`. These align with but do not map 1:1 to the SDD phase names below — see the [GitHub Phase Mapping](#github-phase-mapping) table.
-
-Each phase ends with a hard gate. The next phase must not begin until all gate conditions are met.
-
-| GitHub Phase complete | Gate conditions |
-|---|---|
-| **GitHub Phase 1** (spec) | `[1c]` spec PR merged **and** `[2a]` has created all `[2]` design issues |
-| **GitHub Phase 2** (UI/UX design) | All `[2]` design issues closed |
-| **GitHub Phase 3** (user stories) | `[3a]` story spec PR merged **and** `[3b]` has created all `[3]` story issues **and** all `[4]` frontend implementation issues |
-| **GitHub Phase 4** (frontend impl) | All `[4]` frontend implementation issues closed |
-| **GitHub Phase 5** (backend design) | `[5a]` backend design PR merged **and** `[5b]`/`[5c]` have created all `[5]` story issues **and** all `[6]` backend implementation issues |
-| **GitHub Phase 6** (backend impl) | All `[5]`/`[6]` backend stories closed |
-| **GitHub Phase 7** (MVP) | `[7a]` walkthrough published |
-
-**Current phase discipline:** Only produce artefacts that belong to the current GitHub phase. Do not include:
-- `[2]` design issue content in a GitHub Phase 1 spec PR (create issues via `[2a]`, don't write mockups in the spec)
-- API endpoint contracts in a GitHub Phase 1/2 artefact (belongs in GitHub Phase 5 via `[5a]`)
-- Database schema before UI/UX is signed off (belongs in GitHub Phase 5/6)
-- Component props or implementation code in feature files (belongs in GitHub Phase 4 skeleton)
-- User stories before mockups are approved (belongs in GitHub Phase 3 via `[3a]`/`[3b]`)
+- **Behaviour first, appearance second** — define what the user can *do*, not what it looks like. Visual polish comes after something works.
+- **AI proposes, human approves** — the AI should present concrete proposals with reasoning at every step. The human's job is to read, validate, and only speak up when something is wrong.
+- **Minimal rounds** — each phase aims for one AI pass → one human review → merge. Avoid back-and-forth by front-loading decisions.
+- **DB before code** — entity design drives EF Core migrations which drive the skeleton. Never write service logic against an undefined schema.
+- **Numbered phases are scaffolding** — the [1]–[5] numbering is for the structured early lifecycle only. After [5] the project is a normal living codebase with issues raised as needed.
 
 ---
 
-## Ticketing Structure
+## Phase Overview
 
-Tickets live in two places depending on their role:
+| Phase | Name | Who leads | Output |
+|-------|------|-----------|--------|
+| [1a] | Project setup | Human | Repo created, bot access granted, secrets configured |
+| [1b] | CI/CD setup | Human | Pipeline, branch protection, image build wired |
+| [1c] | Webhook setup | AI | `waiting-for-ai` label workflow live on the repo |
+| [1d] | High-level design discussion | Human + AI | Agreed user workflows, external deps, auth approach |
+| [1e] | Formal workflow + API proposal | AI | PR: proposal doc with workflows, mermaid diagrams, endpoints |
+| [2] | Backend skeleton | AI | All endpoints stubbed with Faker data, OpenAPI + RTK codegen |
+| [3] | Frontend MVP | AI | Functional UI wired to stub API — works, not polished |
+| [4] | DB entity design | AI | EF Core entities, relationships, initial migration |
+| [5] | Backend — feature by feature | AI | Real business logic, feature by feature, TDD |
 
-| Artifact | Where | Purpose |
-|---|---|---|
-| Epics | `docs/epics/*.md` | Broad capability groupings — stable, high-level |
-| Features | `docs/features/*.md` | A scoped piece of an epic — references epic, lists story issue numbers |
-| User Stories | GitHub Issues | Unit of work — precise acceptance criteria tied to a specific screen or interaction |
+After [5]: normal project — issues raised incrementally as needed. No fixed numbering.
 
-Epics and features are written early and are stable. User stories are written after the UI/UX is signed off, so acceptance criteria can reference specific UI states.
+---
 
-Each feature MD is updated with GH issue numbers as stories are created:
+## Phase Detail
 
-```markdown
-## Stories
-- #12 — User can submit the registration form with a valid email
-- #13 — User sees an inline error when the email is already registered
-- #14 — User receives a confirmation email after successful registration
+### [1a] — Project Setup
+**Human action.**
+
+- Create the GitHub repo
+- Grant the bot's GitHub App access to the repo
+- Configure repository secrets (CI/CD, OCIR credentials, etc.)
+- Create the three standard labels: `waiting-for-ai`, `action-ready`, `ai-error`
+
+```bash
+gh label create "waiting-for-ai" --color "7B61FF" --description "AI's turn — discuss, spec iterate, or implement"
+gh label create "action-ready"   --color "F9D0C4" --description "Issue approved for implementation — AI should start coding"
+gh label create "ai-error"       --color "D93F0B" --description "Claude encountered an error — needs human attention"
 ```
 
----
-
-## The Workflow
-
-### Issue-driven development
-
-```
-AI creates GH issue with initial spec
-  ↓
-Developer reviews, leaves comments
-  ↓
-AI responds, spec is iterated
-  ↓
-Consensus reached — issue is the agreed spec
-  ↓
-AI implements, opens PR referencing "Closes #N"
-  ↓
-Developer reviews PR, leaves comments
-  ↓
-AI addresses feedback
-  ↓
-Merge → issue auto-closes
-```
-
-The issue body is the first-pass spec. Comments are the negotiation. The PR is the proof. This creates a full audit trail from spec to discussion to implementation to review.
+No `waiting-for-human` label — anything without a trigger label is implicitly the human's turn.
 
 ---
 
-## GitHub Phase Mapping
+### [1b] — CI/CD Setup
+**Human action.** Pipeline setup requires repository secrets, and branch protection rules require admin access the bot doesn't have.
 
-Each SDD phase maps to a numbered project phase used in GitHub issue titles. See [`docs/ai-workflow.md`](../ai-workflow.md) for the full bootstrap workflow, initial issues, and the `[Na]` / `[N]` issue numbering convention.
+Human sets up:
+- GitHub Actions CI pipeline (`.github/workflows/ci.yml`) — build + test on every PR
+- Docker image build + push workflow (`.github/workflows/docker-build-push.yml`) — manual trigger
+- Branch protection rules for `main` and `dev` (Settings → Branches)
+- **"Automatically delete head branches"** enabled (Settings → General)
 
-| SDD Phase | GitHub Phase | Issues |
-|-----------|-------------|--------|
-| Phase 1 — Vision & Planning | Phase 1 — Project Setup | `[1a]`, `[1b]`, `[1c]` |
-| Phase 2 — Epic & Feature Breakdown | *(part of Phase 1 spec PR)* | — |
-| Phase 3 — UI/UX Design | Phase 2 — UI/UX Design | `[2a]`, `[2]` per feature |
-| Phase 4 — User Story Definition | Phase 3 — Frontend User Stories | `[3a]`, `[3b]`, `[3]` per story |
-| Phase 5 — UI + Skeleton Backend | Phase 4 — Frontend Implementation | `[4]` per story |
-| Phase 6 — Backend Architecture & DB | Phase 5 — Backend Design & Stories | `[5a]`, `[5b]`, `[5c]` |
-| Phase 7 — Backend Implementation | Phase 6 — Backend Implementation | `[6a]` (DB), `[6]` per story |
-| *(post-implementation)* | Phase 7 — MVP | `[7a]`, `[7b]` |
+Close the issue when done.
 
 ---
 
-## The Seven Phases
+### [1c] — Webhook Setup
+**AI action.** Apply `waiting-for-ai` to the [1c] issue to trigger.
 
-### Phase 1 — Vision & High-Level Planning
-**In chat**
+AI registers the GitHub webhook on this repo:
+- URL: `https://balenthiran.co.uk/webhooks/claude`
+- Events: **Issues** + **Pull requests** only
+- Secret: from cluster secret `GITHUB_WEBHOOK_SECRET`
 
-Align on what we are building and why before any decomposition.
-
-**Activities:**
-- Define the product vision in 2–3 sentences
-- List the core problems being solved
-- Identify the primary user personas
-- Agree on MVP scope boundaries — what is explicitly out of scope for POC
-
-**Outputs:**
-- Vision statement
-- Initial out-of-scope list
+After this, applying `waiting-for-ai` to any issue or PR on this repo will automatically trigger Claude.
 
 ---
 
-### Phase 2 — Epic & Feature Breakdown
-**In chat → `docs/epics/` and `docs/features/`**
+### [1d] — High-Level Design Discussion
+**Casual conversation in the issue.**
 
-Decompose the product into epics and features at a coarse-grained level — establishing *what* the app needs to do, not *how*. User stories are not written here; they come after the UI is designed.
+Human opens a [1d] issue and answers the following prompts (rough answers are fine):
 
-**Activities:**
-- Identify epics (broad capability groupings)
-- Break each epic into features (scoped, deliverable pieces)
-- Flag features that are unclear or carry obvious technical risk
+- What problem does this product solve, and for whom?
+- What does a successful MVP look like?
+- What are the key user workflows? (e.g. "auth", "create a record", "view a dashboard")
+- Are there external APIs, data sources, or third-party integrations?
+- Auth requirements? (none / email+password / OAuth — which providers?)
+- What is explicitly out of scope for MVP?
 
-**Outputs:**
-- `docs/epics/*.md` — one file per epic
-- `docs/features/*.md` — one file per feature, referencing its epic
+AI asks follow-up questions in the issue comments and proposes resolutions to any ambiguities. Once the discussion has settled, AI raises a [1e] PR.
 
-**Spec PR guidance:**
-The Phase 1/2 spec PR should contain the vision doc, epics, and feature files. Keep the following in mind:
-
-- **Frontend features** (UI epics): describe *what the user sees and does* — layout, interactions, open UX questions. Do not specify React component props or implementation detail here.
-- **Backend features** (data/API epics): describe the *capability* only at this stage (e.g. "fetch time-series from FRED"). Mark them as `[draft]` — implementation detail belongs in Phase 6. Do not include endpoint contracts, code snippets, or service design in the spec PR.
-- **Open questions**: surface UI/UX decisions that need resolving before Phase 3 (e.g. date range selector style, card layout, picker interaction). Collect these in the vision doc's "Next: Phase 2" section.
-- **No implementation detail jumps**: resist the urge to spec the API contract or database schema before the UI is designed. The full shape of the API only becomes clear after Phase 3 (UI/UX) and Phase 4 (user stories).
+**Goal:** consensus on scope and major architectural decisions before anything is formalised.
 
 ---
 
-### Phase 3 — UI/UX Design
-**In chat — ASCII mockups + Mermaid diagrams**
+### [1e] — Formal Workflow + API Proposal
+**AI raises a PR** once [1d] discussion has settled.
 
-Fully design the user-facing product before touching a component. Every meaningful page state and user journey should be covered.
+The PR adds `docs/specs/proposal.md` containing:
+- **User workflow descriptions** — bullet-point list of what the user can do in each feature area
+- **Mermaid flow diagrams** — one diagram per key workflow (auth, main CRUD flows, etc.)
+- **Required API endpoints table** — method, path, and purpose for every endpoint
+- **External dependencies table** — third-party services, auth providers, payment gateways
+- **Open decisions** — any unresolved choices, each with a concrete recommendation and rationale
 
-**Activities:**
-- **User journey mapping** — narrative descriptions of key workflows
-- **ASCII mockups** — for each page / modal / drawer, iterate until signed off
-- **Mermaid workflow diagrams** — sequence or flowchart diagrams showing what happens when the user performs an action (what the system does in response, what data flows, what side effects occur)
-- **Data flow consideration** — what data is displayed, where it comes from, what mutations occur
-
-**Outputs:**
-- Signed-off ASCII mockup per page/state
-- Mermaid workflow diagram per key user action
-- Data flow notes
-
-**Why ASCII mockups?**
-ASCII mockups can be reviewed, critiqued, and iterated entirely within the chat window — no screenshots, no build steps, no rendering pipeline. Once the design is locked, translating it to React is straightforward because the component structure is already implicit in the layout.
-
-**Why Mermaid workflow diagrams?**
-They make backend complexity visible before any skeleton code is written. A sequence diagram for "user submits registration form" might reveal that you need an email service, a duplicate-check query, and a redirect — all things that affect the API design.
+Human reviews and merges. Apply `waiting-for-ai` on the PR after comments to iterate.
 
 ---
 
-### Phase 4 — User Story Definition
-**In chat → GitHub Issues**
+### [2] — Backend Skeleton
+**AI action.** Apply `waiting-for-ai` to the [2] issue to trigger.
 
-Now that the UI is signed off, write user stories with precise acceptance criteria. Stories are tied to specific screen states and interactions, not vague feature descriptions.
+AI produces a PR containing:
+- All endpoints from [1e] stubbed as .NET Minimal API routes
+- Simple DTO classes (no EF Core entities yet — DB design comes after the frontend validates the shape)
+- Faker-generated responses from each endpoint (deterministic seed)
+- OpenAPI spec auto-generated from the running app
+- RTK Query codegen run — `generatedApi.ts` up to date
 
-**Activities:**
-- Write user stories per feature: *As a [persona], I want to [action] so that [outcome]*
-- Define acceptance criteria referencing specific UI states from the signed-off mockups
-- AI creates GH issues with the initial spec — developer reviews, comments, and iterates
-- Update `docs/features/*.md` with the GH issue numbers once created
-
-**Outputs:**
-- GH issues per user story (iterated to consensus before implementation begins)
-- Feature MD files updated with issue numbers
-
-**Story quality bar:**
-A good story has acceptance criteria specific enough that there is no ambiguity about whether it is done. "User can register" is a feature. "Given the registration modal is open and the user submits a valid email, the submit button shows a loading state and the modal closes on success" is a story.
+**Goal:** a running API with realistic fake data for every endpoint so the frontend can be built against real hooks.
 
 ---
 
-### Issue naming conventions
+### [3] — Frontend MVP
+**AI action.** Apply `waiting-for-ai` to the [3] issue to trigger.
 
-#### GitHub Phase 2 — UI/UX design issues (created by `[2a]`)
+AI produces a PR containing:
+- All user workflows from [1e] implemented as React pages/components
+- Wired to RTK Query hooks (Faker data from skeleton backend)
+- Functional — every workflow works end to end
+- Unstyled / minimally styled — this is an MVP, not a polished product
 
-One issue per **frontend feature**. Created automatically when `[2a]` is actioned after `[1c]` merges. Title format:
-
-```
-[2] <Feature name> design
-```
-
-Examples:
-- `[2] Homepage layout & navigation design`
-- `[2] Preset ratio card grid design`
-- `[2] Ratio chart component design`
-- `[2] Metric picker UI design`
-- `[2] Custom comparison chart design`
-- `[2] Indicator card component design`
-- `[2] Indicators section design`
-
-Backend features do **not** get a `[2]` design issue — their design is handled in GitHub Phase 5 via `[5a]`.
+**Goal:** a working, demonstrable product. Every workflow the human listed in [1d] is clickable.
 
 ---
 
-#### GitHub Phase 3 — Frontend user story issues (created by `[3b]`)
+### [4] — DB Entity Design
+**AI action.** Apply `waiting-for-ai` to the [4] issue to trigger (after [3] is merged).
 
-One issue per **user story** within a feature. Created automatically when `[3b]` is actioned after `[3a]` merges. Title format:
-
-```
-[3] <Short description of the user action or screen state>
-```
-
-Examples:
-- `[3] User can view preset ratio cards on homepage`
-- `[3] Ratio card shows current value and % deviation from average`
-- `[3] User can select a custom numerator and denominator`
-- `[3] Custom comparison chart updates on metric selection`
-- `[3] User sees a loading state while ratio data fetches`
-
-Rules:
-- One story = one testable behaviour
-- Name from the user's perspective, not the implementation
-- Acceptance criteria must reference a specific signed-off ASCII mockup state
-
----
-
-#### GitHub Phase 4 — Frontend implementation issues (created by `[3b]`)
-
-One issue per **frontend story** to be implemented. Created at the same time as `[3]` story issues when `[3b]` is actioned. Title format:
-
-```
-[4] <Feature or story name>
-```
-
-Examples:
-- `[4] Preset ratio card grid`
-- `[4] Ratio chart component`
-- `[4] Metric picker UI`
-- `[4] Custom comparison chart`
-- `[4] Indicator card component`
-
-Each `[4]` issue maps to a `[3]` story — the `[3]` issue holds the acceptance criteria, the `[4]` issue is what the AI implements.
-
----
-
-#### GitHub Phase 5/6 — Backend user story issues (created by `[5c]`)
-
-One issue per **backend capability**. Created automatically when `[5c]` is actioned after `[5b]` merges. Title format:
-
-```
-[5] <Short description of the capability or endpoint>
-```
-
-Examples:
-- `[5] GET /api/metrics returns full metric catalogue`
-- `[5] GET /api/metrics/{id} returns time series for a metric`
-- `[5] GET /api/metrics/ratio computes and returns ratio series`
-- `[5] FRED fetcher retrieves US CPI series`
-
----
-
-#### GitHub Phase 6 — Backend implementation issues (created by `[5c]`)
-
-One issue per **backend capability** to be implemented. Created at the same time as `[5]` story issues when `[5c]` is actioned. Title format:
-
-```
-[6] <Backend capability or endpoint>
-```
-
-Examples:
-- `[6] GET /api/metrics endpoint`
-- `[6] GET /api/metrics/{id} endpoint`
-- `[6] GET /api/metrics/ratio endpoint`
-- `[6] FRED fetcher service`
-- `[6] ONS fetcher service`
-- `[6] yfinance fetcher service`
-
-Each `[6]` issue maps to a `[5]` story — the `[5]` issue holds the acceptance criteria, the `[6]` issue is what the AI implements (TDD: tests first).
-
----
-
-#### Feature file — Stories section
-
-Once issues are created by `[3b]` or `[5c]`, update the relevant `docs/features/*.md` `## Stories` section:
-
-```markdown
-## Stories
-- #42 — [3] User can view preset ratio cards on homepage
-- #43 — [3] Ratio card shows current value and % deviation from average
-- #44 — [3] User sees a loading state while ratio data fetches
-```
-
----
-
-### Phase 5 — UI + Skeleton Backend
-**Implementation**
-
-Build a fully navigable, fully wired-up frontend backed by faked endpoints. The app should look and behave like the real thing — just no real data.
-
-**Activities:**
-- Scaffold routes in .NET — one route per endpoint, returning Faker-generated DTOs
-- Generate OpenAPI spec from the running skeleton app
-- Run codegen to produce RTK Query hooks from the OpenAPI spec
-- Implement the frontend using generated hooks — no hardcoded data
-- Deploy to scratch environment for interactive QA and sign-off
-
-**Outputs:**
-- Fully functional skeleton app (deployed to scratch)
-- Complete OpenAPI spec
-
----
-
-### Phase 6 — Backend Architecture & DB Design
-**In chat**
-
-Now that the full scope of business contracts is known, design the backend before writing any implementation code.
-
-**Activities:**
-- Entity design — identify domain entities from API contracts, draw ER diagram in Mermaid
-- EF Core model design — define entities, relationships, indexes, and constraints
-- Service architecture — agree on orchestrators, single-responsibility services, and DI wiring (see `docs/specs/backend-srp.md`)
-- Define in-process integration test scenarios — capture what end-to-end workflows must be verified (implemented at the end of Phase 7)
-- Architectural Decision Records (ADRs) — capture significant decisions as short notes in `docs/`
-
-**Outputs:**
+Now that the frontend has validated the data shape, AI produces a PR containing:
 - Mermaid ER diagram
-- Service layer outline
-- Integration test scenarios (what, not how)
-- ADR notes
+- EF Core entity classes in `EntityModels/`
+- Relationships, indexes, and constraints
+- Initial EF Core migration
+
+No business logic. No service layer. Just the schema.
 
 ---
 
-### Phase 7 — Backend Implementation
-**Story by story, test first**
+### [5] — Backend — Feature by Feature
+**One issue per feature. AI picks up each with `waiting-for-ai`.**
 
-Replace faked skeleton endpoints with real business logic. Work story by story from the GH issue list, closing each issue via a PR. Follow top-down TDD — see `docs/specs/testing-strategy.md`.
+Replace stubbed endpoints with real business logic, feature by feature:
+- Real DB queries via EF Core repositories
+- Service layer with proper SRP (see `docs/specs/backend-srp.md`)
+- Unit tests per service method (TDD — tests first)
+- In-process integration tests for end-to-end workflows
 
-**Activities:**
-- Pick up a GH issue, implement, open PR with `Closes #N`
-- Developer reviews PR, AI addresses feedback, merges
-- Each story: write unit tests → implement service → wire to repository → migration
-- The OpenAPI spec should not change during this phase — flag any contract changes explicitly
-- Implement in-process integration tests once the full dependency tree is built
+Each [5] issue scopes to one feature (e.g. "implement auth endpoints", "implement [resource] CRUD"). One PR per issue.
 
-**Outputs:**
-- Production-ready backend
-- EF Core migrations
-- Unit tests per service
-- In-process integration tests covering Phase 6 scenarios
-- All user story issues closed via merged PRs
+The OpenAPI contract should not change during this phase — if a contract change is needed, flag it explicitly.
 
 ---
 
-## Tooling Conventions
+## Issue Numbering Convention
+
+| Format | Meaning |
+|--------|---------|
+| `[1a]`, `[1b]`, `[1c]` | Setup orchestrator issues — one-off actions |
+| `[1d]`, `[1e]` | Design discussion and proposal issues |
+| `[2]`, `[3]`, `[4]` | Phase-level delivery issues — one per phase |
+| `[5] Feature name` | Backend implementation — one per feature |
+
+Post-[5] issues are not numbered. Use descriptive titles and `action-ready` / `waiting-for-ai` labels to drive the workflow.
+
+---
+
+## Considered Alternatives
+
+When a meaningful design decision is made, the AI should document the rejected options in the PR body under a **"Considered alternatives"** table:
+
+```markdown
+## Considered alternatives
+| Option | Reason rejected |
+|--------|----------------|
+| JWT stored in localStorage | XSS risk — httpOnly cookie chosen instead |
+| Polling instead of webhooks | Higher latency and server load — webhooks preferred |
+```
+
+This prevents the same debate happening again and creates a searchable audit trail in git history.
+
+---
+
+## Tooling
 
 | Concern | Tool |
-|---|---|
-| UI Mockups | ASCII (in-chat) |
-| Workflow diagrams | Mermaid (sequence / flowchart) |
-| Architecture / ER diagrams | Mermaid |
-| Epic & feature specs | MD files in `docs/epics/`, `docs/features/` |
-| User stories | GitHub Issues |
-| API contract generation | OpenAPI (.NET routes) |
-| Frontend API client | RTK Query (codegen) |
+|---------|------|
+| Workflow & ER diagrams | Mermaid |
+| API contract | OpenAPI (.NET routes + `dotnet run`) |
+| Frontend API client | RTK Query (codegen from OpenAPI) |
 | Fake data | Faker (.NET skeleton routes) |
-| PR / QA review | Scratch environment deployment |
 | Backend unit tests | xUnit + Moq |
 | In-process integration tests | xUnit + Moq (real services, external I/O mocked) |
 | Frontend unit tests | Vitest + React Testing Library |
@@ -382,11 +208,14 @@ Replace faked skeleton endpoints with real business logic. Work story by story f
 ## Summary Flow
 
 ```
-1. Vision & Planning              (chat)
-2. Epic & Feature Breakdown       (chat → docs/epics/, docs/features/)
-3. UI/UX Design                   (chat — ASCII mockups + Mermaid workflows)
-4. User Story Definition          (chat → GH Issues, iterated via comments)
-5. UI + Skeleton Backend          (implementation)
-6. Backend Architecture & DB      (chat — Mermaid ER + service design)
-7. Backend Implementation         (TDD, story by story, PRs close issues)
+[1a] Project setup        (human)
+[1b] CI/CD setup          (human)
+[1c] Webhook setup        (AI)
+[1d] Design discussion    (human + AI, casual)
+[1e] Formal proposal      (AI → PR: workflows, mermaid, endpoints)
+[2]  Backend skeleton     (AI → PR, Faker data)
+[3]  Frontend MVP         (AI → PR, all workflows working)
+[4]  DB entity design     (AI → PR, EF Core entities + migration)
+[5]  Backend per feature  (AI → PR per feature, TDD)
+     → normal project
 ```
