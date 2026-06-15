@@ -113,6 +113,20 @@ CI runs on PRs only (`ci.yml`). Image builds are manual (`docker-build-push.yml`
 - **Issue linking**: Every PR body must include `Closes #N`. The AI also comments on the issue: *🤖 PR raised: #N — please review when ready.*
 - **Labels**: After completing work, remove `waiting-for-ai` or `action-ready` — do NOT apply `waiting-for-human`. Anything without a trigger label is implicitly the human's turn. If blocked, remove the trigger label and post a comment.
 
+## Label Modes
+
+| Label | Effect | When to apply |
+|---|---|---|
+| `waiting-for-ai` | Bot enters **discussion mode** — answers questions, proposes plans. **Will NOT write code or raise a PR.** | New issues, Q&A rounds, requesting analysis or a plan |
+| `action-ready` | Bot enters **implementation mode** — writes code, runs tests, raises a PR. | After reviewing a plan and wanting implementation to begin or continue |
+
+When finishing a partial pass, always state explicitly:
+> "Re-apply `action-ready` (not `waiting-for-ai`) to continue implementation."
+
+This is mandatory — the developer has no other way to know which label triggers implementation.
+
+---
+
 ## [1e] Formal Proposal Template
 
 When the AI opens a `[1e]` issue from a [1d] discussion, use this structure:

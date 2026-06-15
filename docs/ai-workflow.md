@@ -4,6 +4,17 @@ This document describes the end-to-end workflow for projects bootstrapped from t
 
 ---
 
+## Label Quick Reference
+
+| Label | Effect | When to apply |
+|---|---|---|
+| `waiting-for-ai` | Bot enters **discussion mode** — answers questions, proposes plans. **Will NOT write code or raise a PR.** | New issues, Q&A rounds, requesting analysis or a plan |
+| `action-ready` | Bot enters **implementation mode** — writes code, runs tests, raises a PR. | After reviewing a plan and wanting implementation to begin or continue |
+
+> **Re-trigger tip:** If you want to continue implementation after a partial pass, use `action-ready` — not `waiting-for-ai`. The bot will note this at the end of each partial pass.
+
+---
+
 ## Phase 0 — Bootstrap
 
 > No GitHub issues. One-off actions performed once when the project is created.
