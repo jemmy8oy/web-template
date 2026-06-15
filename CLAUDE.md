@@ -113,6 +113,30 @@ CI runs on PRs only (`ci.yml`). Image builds are manual (`docker-build-push.yml`
 - **Issue linking**: Every PR body must include `Closes #N`. The AI also comments on the issue: *🤖 PR raised: #N — please review when ready.*
 - **Labels**: After completing work, remove `waiting-for-ai` or `action-ready` — do NOT apply `waiting-for-human`. Anything without a trigger label is implicitly the human's turn. If blocked, remove the trigger label and post a comment.
 
+## Agent Conventions
+
+### Phase Guard Status Format
+
+When triggered on an issue, check phase dependencies and post a concise status block:
+
+````markdown
+## 🔍 Phase Check
+
+| Check | Status |
+|---|---|
+| Phase N dependencies | ⏳ #32, #34 still open — waiting |
+| Key decision from [1c] | ✅ "No DB for MVP" — EF Core items skipped |
+| External data sources | ⚠️ CAPE source unverified — flagging in spec |
+
+> Proceeding once #32 and #34 close. Will post one update when they do.
+````
+
+Rules:
+- Post this table **instead of** a verbose paragraph analysis
+- Maximum 3–5 rows — only include the checks that are relevant to this issue
+- ✅ = confirmed / met, ⏳ = pending / waiting, ⚠️ = flagged / needs attention
+- If all checks pass: proceed directly to implementation without posting the table
+
 ## Label Modes
 
 | Label | Effect | When to apply |
