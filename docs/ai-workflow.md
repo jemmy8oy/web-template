@@ -189,19 +189,6 @@ Formal phases end here. The project becomes a normal living codebase:
 
 ---
 
-### Phase 8 — Deployment
-
-Triggered once all [6] issues are closed (or explicitly signed off).
-
-| Issue | Action |
-|---|---|
-| [8a] | AI sets up CI/CD pipeline: GitHub Actions → container registry → K8s/hosting |
-| [8b] | Developer configures registry secrets and K8s credentials |
-| [8c] | AI raises Helm/deployment config PR targeting `dev` |
-| [8d] | Developer merges `dev → main` to trigger production deployment |
-
----
-
 ### Phase 9 — Retrospective
 
 | Issue | Action |

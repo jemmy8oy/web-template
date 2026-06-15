@@ -25,10 +25,9 @@ A structured development process designed to get from idea to working MVP in as 
 | [3] | Frontend MVP | AI | Functional UI wired to stub API — works, not polished |
 | [4] | DB entity design | AI | EF Core entities, relationships, initial migration |
 | [5] | Backend — feature by feature | AI | Real business logic, feature by feature, TDD |
-| [8] | Deployment | AI | Production-ready containers, ingress config, Helm values, CI/CD wired |
 | [9] | Retrospective | AI | Retro docs in `docs/retros/`, template gap fix PRs |
 
-After [5]: normal project — issues raised incrementally as needed. No fixed numbering. [8] and [9] are milestone phases triggered when the project reaches deployment/end-of-cycle.
+After [5]: normal project — issues raised incrementally as needed. No fixed numbering. [9] is a milestone phase triggered when the project reaches end-of-cycle.
 
 ---
 
@@ -164,29 +163,6 @@ The OpenAPI contract should not change during this phase — if a contract chang
 
 ---
 
-### [8] — Deployment
-
-**Triggered when:** All [6] implementation issues are closed or explicitly signed off.
-
-**AI action.** Apply `action-ready` to trigger.
-
-AI raises a deployment PR containing:
-- `Dockerfile` verified for production (multi-stage, non-root user)
-- `nginx.conf` (or equivalent ingress config) with all required routes
-- Helm chart values — image registry, ingress host, secret references
-- GitHub Actions workflow for container build + push (if not already present)
-- `docs/deployment.md` — all required environment variables documented
-
-**Pre-deployment checklist for AI:**
-- [ ] All routes from [1e] are accessible via the nginx/ingress config
-- [ ] All environment variables (API keys, DB connection strings) referenced by name only — never hardcoded
-- [ ] Health check endpoint configured (`/api/status` or equivalent)
-- [ ] Container registry path matches `helm/values.yaml` and the GitHub Actions workflow
-
-**Branch discipline:** The deployment PR targets `dev`. The human merges `dev → main` to trigger the production deployment.
-
----
-
 ### [9] — Retrospective
 
 **Triggered when:** Deployment is confirmed working or the project is at a natural stopping point.
@@ -218,10 +194,9 @@ Human reviews and merges the retro PR.
 | `[1d]`, `[1e]` | Design discussion and proposal issues |
 | `[2]`, `[3]`, `[4]` | Phase-level delivery issues — one per phase |
 | `[5] Feature name` | Backend implementation — one per feature |
-| `[8]` | Deployment — production readiness and CI/CD wiring |
 | `[9]` | Retrospective — retro docs and template gap fix PRs |
 
-Post-[5] issues are not numbered. Use descriptive titles and `action-ready` / `waiting-for-ai` labels to drive the workflow. [8] and [9] are milestone phases triggered when the project reaches deployment/end-of-cycle.
+Post-[5] issues are not numbered. Use descriptive titles and `action-ready` / `waiting-for-ai` labels to drive the workflow. [9] is a milestone phase triggered when the project reaches end-of-cycle.
 
 ---
 
@@ -268,6 +243,5 @@ This prevents the same debate happening again and creates a searchable audit tra
 [4]  DB entity design     (AI → PR, EF Core entities + migration)
 [5]  Backend per feature  (AI → PR per feature, TDD)
      → normal project
-[8]  Deployment           (AI → PR: Dockerfile, nginx, Helm, CI/CD)
 [9]  Retrospective        (AI → retro docs + template fix PRs)
 ```
