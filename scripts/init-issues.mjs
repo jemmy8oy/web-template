@@ -265,6 +265,10 @@ async function run() {
   log('Scaffolding initial SDD issues...');
   log('');
 
+  const owner = gh(`repo view --json owner --jq .owner.login`).trim();
+  log(`Repo owner: ${owner}`);
+  log('');
+
   ensureLabels();
   log('');
 
@@ -282,7 +286,7 @@ async function run() {
     const bodyFile = join(tmpdir(), `issue-body-${Date.now()}.md`);
     writeFileSync(bodyFile, issue.body);
 
-    gh(`issue create --title "${issue.title}" --body-file "${bodyFile}" --milestone "${milestone}"`);
+    gh(`issue create --title "${issue.title}" --body-file "${bodyFile}" --milestone "${milestone}" --assignee "${owner}"`);
     log(`  CREATED  "${issue.title}"`);
 
     try { unlinkSync(bodyFile); } catch { /* ignore */ }
