@@ -8,7 +8,7 @@ A structured development process designed to get from idea to working MVP in as 
 - **AI proposes, human approves** — the AI should present concrete proposals with reasoning at every step. The human's job is to read, validate, and only speak up when something is wrong.
 - **Minimal rounds** — each phase aims for one AI pass → one human review → merge. Avoid back-and-forth by front-loading decisions.
 - **DB before code** — entity design drives EF Core migrations which drive the skeleton. Never write service logic against an undefined schema.
-- **Numbered phases are scaffolding** — the [1]–[5] numbering is for the structured early lifecycle only. After [5] the project is a normal living codebase with issues raised as needed.
+- **Numbered phases are scaffolding** — the [1]–[5] numbering is for the structured early lifecycle only. After [5] the project is a normal living codebase with issues raised as needed. [6] is a reserved milestone phase for the end-of-cycle retrospective.
 
 ---
 
@@ -25,8 +25,9 @@ A structured development process designed to get from idea to working MVP in as 
 | [3] | Frontend MVP | AI | Functional UI wired to stub API — works, not polished |
 | [4] | DB entity design | AI | EF Core entities, relationships, initial migration |
 | [5] | Backend — feature by feature | AI | Real business logic, feature by feature, TDD |
+| [6] | Retrospective | AI | Retro docs in `docs/retros/`, template gap fix PRs |
 
-After [5]: normal project — issues raised incrementally as needed. No fixed numbering.
+After [5]: normal project — issues raised incrementally as needed. No fixed numbering. [6] is a milestone phase triggered when the project reaches end-of-cycle.
 
 ---
 
@@ -162,6 +163,29 @@ The OpenAPI contract should not change during this phase — if a contract chang
 
 ---
 
+### [6] — Retrospective
+
+**Triggered when:** Deployment is confirmed working or the project is at a natural stopping point.
+
+**AI action.** Apply `action-ready` to trigger.
+
+AI generates a retrospective in `docs/retros/<project-slug>/` covering:
+
+| Document | Content |
+|---|---|
+| `00-overview.md` | POC timeline, what was built, open items at close |
+| `01-process.md` | Phase-by-phase SDD assessment |
+| `02-issues.md` | All issues categorised and assessed |
+| `03-gaps.md` | Template gaps identified with proposed fixes |
+| `04-technical.md` | Architecture decisions, bugs, technical debt |
+| `05-recommendations.md` | Prioritised improvements for the next project |
+
+The AI also opens PRs on `web-template` to apply any template fixes identified in the retro.
+
+Human reviews and merges the retro PR.
+
+---
+
 ## Issue Numbering Convention
 
 | Format | Meaning |
@@ -170,8 +194,9 @@ The OpenAPI contract should not change during this phase — if a contract chang
 | `[1d]`, `[1e]` | Design discussion and proposal issues |
 | `[2]`, `[3]`, `[4]` | Phase-level delivery issues — one per phase |
 | `[5] Feature name` | Backend implementation — one per feature |
+| `[6]` | Retrospective — retro docs and template gap fix PRs |
 
-Post-[5] issues are not numbered. Use descriptive titles and `action-ready` / `waiting-for-ai` labels to drive the workflow.
+Post-[5] issues are not numbered. Use descriptive titles and `action-ready` / `waiting-for-ai` labels to drive the workflow. [6] is a milestone phase triggered when the project reaches end-of-cycle.
 
 ---
 
@@ -218,4 +243,5 @@ This prevents the same debate happening again and creates a searchable audit tra
 [4]  DB entity design     (AI → PR, EF Core entities + migration)
 [5]  Backend per feature  (AI → PR per feature, TDD)
      → normal project
+[6]  Retrospective        (AI → retro docs + template fix PRs)
 ```
