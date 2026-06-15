@@ -55,8 +55,9 @@ Created automatically at bootstrap. Apply `waiting-for-ai` to each when ready to
 | `[1d]`–`[1e]` | Design discussion and proposal — conversational then formal |
 | `[2]`, `[3]`, `[4]` | Phase delivery issues — one per phase, AI raises a PR |
 | `[5] Feature name` | Backend implementation — one per feature, AI raises a PR |
+| `[6]` | Retrospective — retro docs and template gap fix PRs |
 
-Post-[5] issues are not numbered. Use descriptive titles and the label system to drive work.
+Post-[5] issues are not numbered. Use descriptive titles and the label system to drive work. [6] is a milestone phase triggered when the project reaches end-of-cycle.
 
 ---
 
@@ -189,13 +190,13 @@ Formal phases end here. The project becomes a normal living codebase:
 
 ---
 
-### Phase 9 — Retrospective
+### Phase 6 — Retrospective
 
 | Issue | Action |
 |---|---|
-| [9a] | AI generates retrospective in `docs/retros/<project-name>/` covering process, template gaps, technical decisions, and recommendations |
-| [9b] | Developer reviews and merges the retro PR |
-| [9c] | AI opens PRs on `web-template` to apply gap fixes identified in the retro |
+| [6a] | AI generates retrospective in `docs/retros/<project-name>/` covering process, template gaps, technical decisions, and recommendations |
+| [6b] | Developer reviews and merges the retro PR |
+| [6c] | AI opens PRs on `web-template` to apply gap fixes identified in the retro |
 
 ---
 
