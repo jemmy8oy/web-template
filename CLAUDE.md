@@ -113,9 +113,6 @@ CI runs on PRs only (`ci.yml`). Image builds are manual (`docker-build-push.yml`
 - **Issue linking**: Every PR body must include `Closes #N`. The AI also comments on the issue: *🤖 PR raised: #N — please review when ready.*
 - **Labels**: After completing work, remove `waiting-for-ai` or `action-ready` — do NOT apply `waiting-for-human`. Anything without a trigger label is implicitly the human's turn. If blocked, remove the trigger label and post a comment.
 
-<<<<<<< HEAD
-## Label Modes
-=======
 ## Agent Conventions
 
 ### Phase Guard Status Format
@@ -140,8 +137,7 @@ Rules:
 - ✅ = confirmed / met, ⏳ = pending / waiting, ⚠️ = flagged / needs attention
 - If all checks pass: proceed directly to implementation without posting the table
 
-## [2] Design Issue Template
->>>>>>> 4942330 (docs: add Phase Guard Status Format to Agent Conventions in CLAUDE.md)
+## Label Modes
 
 | Label | Effect | When to apply |
 |---|---|---|
@@ -152,6 +148,16 @@ When finishing a partial pass, always state explicitly:
 > "Re-apply `action-ready` (not `waiting-for-ai`) to continue implementation."
 
 This is mandatory — the developer has no other way to know which label triggers implementation.
+
+---
+
+## AI Behaviour Mode
+
+At the start of each project, check `docs/specs/proposal.md` (from [1e]) for the AI Behaviour Preference set in [1d]:
+
+- **Assume & Document:** Implement directly. Surface all non-obvious choices in the PR's Assumptions & Decisions table.
+- **Ask First:** Post clarifying questions before starting implementation. Wait for answers.
+- **Mixed (default if not specified):** Assume minor/stylistic choices. Ask only for major architectural decisions with no sensible default.
 
 ---
 
