@@ -163,10 +163,18 @@ Once the discussion settles, Claude will open a [1e] issue with a formal proposa
 
 - **What is explicitly out of scope for MVP?**
 
+### AI Behaviour Preferences
+
+How should the AI handle ambiguity?
+
+- [ ] **Assume & Document** — AI makes sensible assumptions, implements, lists all assumptions in the PR. Developer reviews and overrides. Fastest flow.
+- [ ] **Ask First** — AI posts all clarifying questions before starting. Developer answers. Slower but developer retains more control.
+- [ ] **Mixed** — AI asks for major architectural decisions; assumes for minor/stylistic choices (recommended default).
+
 ## AI Notes
 
 Trigger: \`waiting-for-ai\` applied to this issue.
-Action: Read the questionnaire answers, ask follow-up questions in a comment, and propose resolutions to any ambiguities. Iterate until consensus is reached. Once settled, raise a [1e] PR with the formal workflow + API proposal — then close this issue.
+Action: Read the questionnaire answers, ask follow-up questions in a comment, and propose resolutions to any ambiguities. Iterate until consensus is reached. Note the AI Behaviour Preference selected — it will be recorded in \`docs/specs/proposal.md\` and governs how the AI handles ambiguity throughout the project. Once settled, raise a [1e] PR with the formal workflow + API proposal — then close this issue.
 `,
   },
   {
