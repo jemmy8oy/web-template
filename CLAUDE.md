@@ -151,3 +151,35 @@ When the AI opens a `[1e]` issue from a [1d] discussion, use this structure:
 ## Open decisions
 - [decision] — Proposal: [recommendation]. Rationale: [reason]. ✅ Unless you disagree?
 ```
+
+---
+
+## Issue Factories ([3b] and [5c])
+
+Issue factories are AI passes that create multiple downstream issues programmatically. Follow these rules for all factory runs:
+
+### [3b] — Creates [4] frontend implementation issues
+
+Each [4] issue must include:
+- [ ] A single, clearly scoped frontend feature or component
+- [ ] Acceptance criteria referencing the BDD story from [3a] user stories
+- [ ] A Testing section (mandatory AC) — see Testing Standards
+- [ ] A Visual Evidence section (mandatory AC) — see Frontend PR Screenshots
+- [ ] `--assignee $(gh repo view --json owner --jq .owner.login)` (mandatory)
+
+### [5c] — Creates [6] backend fetcher/service issues
+
+Each [6] issue must include:
+- [ ] A single, clearly scoped backend service or fetcher
+- [ ] Reference to the data source validation from [5a]
+- [ ] The "real HTTP enforcement" note (no stubs)
+- [ ] A Testing section (mandatory AC) — see Testing Standards
+- [ ] `--assignee $(gh repo view --json owner --jq .owner.login)` (mandatory)
+
+### Factory verification
+
+After each factory run:
+```bash
+# Verify all created issues have an assignee
+gh issue list --repo $(gh repo view --json nameWithOwner --jq .nameWithOwner) --limit 30 --json number,assignees | python3 -c "import sys,json; [print(f'#{i[\"number\"]} — assignees: {[a[\"login\"] for a in i[\"assignees\"]]}') for i in json.load(sys.stdin)]"
+```
