@@ -275,6 +275,18 @@ Once all frontend implementation issues (\`[4]\`) are closed, raise a backend de
 - [ ] Developer reviews and merges
 - [ ] This issue closed on merge
 
+## Data Source Validation (required before writing implementation issues)
+
+For each external data source listed in [1c] / [1e]:
+
+- [ ] Confirm the API endpoint and series ID exist and are accessible (curl/httpie the endpoint — do not assume)
+- [ ] Document the exact URL pattern used
+- [ ] Note rate limits and API key requirements
+- [ ] Record the data cadence (daily / monthly / quarterly) and earliest available date
+- [ ] Flag any sources that could not be validated with ⚠️ and explain why
+
+**Do not write any [6] fetcher implementation issues until all data sources in scope have been validated.**
+
 ## Dependencies
 
 Depends on all \`[4]\` frontend issues being closed.
@@ -319,6 +331,16 @@ Once the backend user story spec PR from [5b] is merged, create individual \`[6]
 - [ ] Each issue uses the **User Story** issue template
 - [ ] \`docs/features/*.md\` updated with the GH issue numbers
 - [ ] This issue closed once all \`[6]\` issues are created
+
+## [6] Issue structure
+
+Each \`[6]\` issue the AI creates must include the following section:
+
+\`\`\`
+## Before implementing
+
+Confirm the series ID and API endpoint from the Phase 5 data source validation notes in \`[5a]\`. If validation notes are absent, run the validation step before writing any code.
+\`\`\`
 
 ## Dependencies
 
