@@ -169,17 +169,29 @@ They make backend complexity visible before any skeleton code is written. A sequ
 ---
 
 ### Phase 4 — User Story Definition
-**In chat → GitHub Issues**
+**Spec PR (`[3a]`) → GitHub Issues (`[3b]`)**
 
-Now that the UI is signed off, write user stories with precise acceptance criteria. Stories are tied to specific screen states and interactions, not vague feature descriptions.
+Now that the UI is signed off, raise a spec PR (`[3a]`) containing two documents that together cover five required areas. Stories are tied to specific screen states and interactions, not vague feature descriptions.
+
+**`[3a]` — Five required sections (all must be addressed before the PR is raised):**
+
+1. **Library choices** — UI component library, chart library, date handling, state management approach
+2. **API skeleton contracts** — endpoint shapes (URL, method, response type), RTK Query hook definitions, TypeScript response types
+3. **Fake data strategy** — how the frontend gets data before the real backend exists (Faker backend skeleton preferred; MSW as fallback)
+4. **Frontend TDD approach** — Vitest + React Testing Library, spec-first (test-before-component), one test file per component
+5. **BDD user stories** — *As [role], I want [action], so that [benefit]*; one story per user workflow; Given/When/Then acceptance criteria
 
 **Activities:**
 - Write user stories per feature: *As a [persona], I want to [action] so that [outcome]*
 - Define acceptance criteria referencing specific UI states from the signed-off mockups
+- Document API skeleton contracts — endpoint shapes as TypeScript interfaces, RTK Query hooks
+- Define fake data strategy and TDD approach before `[3b]` creates implementation issues
 - AI creates GH issues with the initial spec — developer reviews, comments, and iterates
 - Update `docs/features/*.md` with the GH issue numbers once created
 
 **Outputs:**
+- `docs/tech-decisions-frontend.md` — library choices, fake data strategy, TDD approach
+- `docs/user-stories-frontend.md` — BDD stories + API skeleton contracts
 - GH issues per user story (iterated to consensus before implementation begins)
 - Feature MD files updated with issue numbers
 
