@@ -193,29 +193,45 @@ Action: Read \`docs/features/\`, create one \`[2] <Feature> design\` issue per f
   },
   {
     title: '[3a] Frontend tech decisions + user story spec',
-    body: `## Summary
+    body: `## [3a] — Frontend Tech Decisions & Stories
 
-Once all \`[2]\` design issues are closed, raise a spec PR covering three things:
+The AI raises a single PR containing two documents. Before raising the PR, the five sections below must all be addressed:
 
-**Part A — Frontend tech decisions** (\`docs/tech-decisions-frontend.md\`)
-Propose and justify library choices before implementation begins:
-- UI component library (e.g. shadcn/ui, MUI, Mantine, Radix UI, or none)
-- Chart / visualisation library (e.g. Recharts, Chart.js, Nivo, Visx, D3)
-- Date handling (e.g. date-fns, dayjs, native \`Intl\`/Temporal)
-- Any other notable runtime dependencies
+### 1. Library choices
+- UI component library (e.g. shadcn/ui, Radix, Mantine)
+- Chart library (e.g. Recharts, Nivo, Chart.js)
+- Date handling library (e.g. date-fns, dayjs)
+- State management approach (RTK Query + Redux Toolkit, or other)
 
-**Part B — BDD user stories** (\`docs/user-stories-frontend.md\`)
-BDD (Behaviour-Driven Development) stories derived from the signed-off designs:
-*As a [persona], I want to [action] so that [outcome]* — with acceptance criteria referencing specific UI states from the ASCII mockups.
+### 2. API skeleton contracts
+- Endpoint shapes (URL, method, response type)
+- RTK Query hook definitions
+- TypeScript response types
 
-**Part C — API skeleton**
-Endpoint contracts (path, params, response shapes) and RTK Query hooks table — included in the user stories doc. Defines what the backend skeleton must implement.
+### 3. Fake data strategy
+- How does the frontend get data before the real backend exists?
+- Preferred: [2] Faker backend skeleton (confirmed or proposed)
+- Alternative: MSW (Mock Service Worker) — if Faker backend not viable
+
+### 4. Frontend TDD approach
+- Test framework: Vitest + React Testing Library
+- Test-before-component approach (spec-first)
+- One test file per component covering key behaviours
+
+### 5. BDD user stories
+- Definition: *"As [role], I want [action], so that [benefit]"*
+- One story per user workflow from [1e]
+- Acceptance criteria per story (Given/When/Then or checklist)
+
+**Both documents (\`docs/tech-decisions-frontend.md\` and \`docs/user-stories-frontend.md\`) must cover all five areas before the PR is raised.**
 
 ## Acceptance Criteria
 
-- [ ] \`docs/tech-decisions-frontend.md\` — library proposals with rationale
-- [ ] \`docs/user-stories-frontend.md\` — BDD stories for every signed-off design
-- [ ] API skeleton section — endpoint contracts + RTK Query hooks table
+- [ ] \`docs/tech-decisions-frontend.md\` — library choices with rationale (sections 1, 3, 4)
+- [ ] \`docs/user-stories-frontend.md\` — BDD stories for every signed-off design (section 5)
+- [ ] API skeleton contracts included — endpoint shapes, RTK Query hooks, TypeScript types (section 2)
+- [ ] Fake data strategy documented — Faker backend skeleton or MSW alternative (section 3)
+- [ ] Frontend TDD approach defined — Vitest + RTL, spec-first, one test file per component (section 4)
 - [ ] Human review gate — developer must approve before merge
 - [ ] This issue closed on merge
 
@@ -226,7 +242,7 @@ Depends on all \`[2]\` design issues being closed.
 ## AI Notes
 
 Trigger: all \`[2]\` issues closed.
-Action: Raise a single PR with \`docs/tech-decisions-frontend.md\` (library proposals) and \`docs/user-stories-frontend.md\` (BDD stories + API skeleton). Stories reference chosen libraries where relevant. API skeleton documents response shapes as TypeScript interfaces and lists RTK Query hooks.
+Action: Raise a single PR with \`docs/tech-decisions-frontend.md\` (library choices, fake data strategy, TDD approach) and \`docs/user-stories-frontend.md\` (BDD stories + API skeleton contracts). All five sections must be addressed before the PR is raised — do not leave API skeleton, fake data strategy, TDD approach, or BDD definition to AI discretion.
 `,
   },
   {
