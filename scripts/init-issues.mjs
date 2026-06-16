@@ -334,12 +334,19 @@ Once the backend user story spec PR from [5b] is merged, create individual \`[6]
 
 ## [6] Issue structure
 
-Each \`[6]\` issue the AI creates must include the following section:
+Each \`[6]\` issue the AI creates must include the following section verbatim:
 
 \`\`\`
-## Before implementing
+## Implementation Note
 
-Confirm the series ID and API endpoint from the Phase 5 data source validation notes in \`[5a]\`. If validation notes are absent, run the validation step before writing any code.
+This story requires a **real HTTP call** to the external API — a stub, in-memory fake, or hardcoded response does **not** satisfy the acceptance criteria.
+
+The fetcher service must:
+- Be wired with \`AddHttpClient<>\` and use a real \`BaseAddress\`
+- Make actual HTTP requests to the external API endpoint
+- Handle real HTTP errors (network failure, 4xx, 5xx) gracefully
+
+Before implementing, confirm the series ID and API endpoint from the Phase 5 data source validation notes in \`[5a]\`. If validation notes are absent, run the data source validation step before writing code.
 \`\`\`
 
 ## Dependencies
