@@ -380,3 +380,12 @@ Active guards:
 - **Branch guard (PreToolUse):** `git push` to `main` is blocked. Target `dev` and raise a PR.
 
 Do not modify or remove these guards. If a guard is triggering incorrectly, raise an issue.
+
+## Helm Scaffold Setup
+
+After creating a new project from this template, update `helm/values.yaml`:
+1. Set `fullnameOverride` to your app name (lowercase, hyphens — e.g. `my-app`)
+2. Set `apps[*].ingress.path` to `/{app-name}` (frontend) and `/{app-name}/api` (backend)
+3. The `balenthiran.co.uk` host, `balenthiran-tls` cert, and `registryPrefix` are shared — do not change them
+4. Add app-specific env vars / secrets as needed — none are pre-scaffolded
+5. Do NOT add `deploy.sh` — deployment is via `docker-build-push.yml` pipeline
