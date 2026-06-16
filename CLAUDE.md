@@ -113,6 +113,13 @@ CI runs on PRs only (`ci.yml`). Image builds are manual (`docker-build-push.yml`
 - **Issue linking**: Every PR body must include `Closes #N`. The AI also comments on the issue: *🤖 PR raised: #N — please review when ready.*
 - **Labels**: After completing work, remove `waiting-for-ai` or `action-ready` — do NOT apply `waiting-for-human`. Anything without a trigger label is implicitly the human's turn. If blocked, remove the trigger label and post a comment.
 
+## Notification Rule (mandatory)
+Always assign the repository owner to every issue and PR:
+- `gh issue create ... --assignee $(gh repo view --json owner --jq .owner.login)`
+- `gh pr create   ... --assignee $(gh repo view --json owner --jq .owner.login)`
+- Finding owner: Use `gh repo view --json owner --jq .owner.login`. Cache it — don't call multiple times.
+- Verification: After creating issues/PRs, run `gh issue view <N> --json assignees` to confirm.
+
 ## Assumptions & Decisions (mandatory for all AI-raised PRs)
 
 Every PR the AI raises must include a populated "Assumptions & Decisions" section in the PR body:
