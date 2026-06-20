@@ -11,17 +11,29 @@
   },
   "sourceName": "SolutionName",
   "preferNameDirectory": true,
+  "symbols": {
+    "appName": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "The name of the application for deployment setups.",
+      "replaces": "your-app-name",
+      "isRequired": true
+    }
+  },
   "sources": [
     {
       "modifiers": [
         {
+          "include": [ ".github/**" ]
+        },
+        {
           "exclude": [
-            "**/.*/**",
             "bin/**",
             "obj/**",
             "**/node_modules/**",
             "frontend/dist/**",
-            "**/*.user"
+            "**/*.user",
+            ".git/**"
           ]
         }
       ]
