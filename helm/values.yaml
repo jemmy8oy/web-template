@@ -36,7 +36,7 @@ apps:
 
   - name: frontend
     image:
-      repository: lhr.ocir.io/lr7uc6l49odc/your-app-name   # Update at scaffold time
+      repository: lhr.ocir.io/lr7uc6l49odc/your-app-name-frontend   # Update at scaffold time
       tag: latest
       pullPolicy: Always
     containerPort: 80
