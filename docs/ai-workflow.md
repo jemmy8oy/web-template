@@ -67,7 +67,7 @@ This distinction makes it immediately clear whether an issue is orchestrating a 
 |-------|--------|
 | [1a] | Developer (or AI where possible) configures CI/CD pipeline secrets and variables in repository settings → closed |
 | [1b] | Developer configures branch protection rules for `main` and `dev` → closed |
-| [1c] | Developer fills in the spec questionnaire (see below), then adds the `waiting-for-ai` label. AI raises a **spec PR** containing the project vision, epics, features, and external dependencies. If anything is ambiguous, the AI leaves a PR comment and swaps the label to `waiting-for-human`. Developer reviews, iterates, merges → closed |
+| [1c] | Developer fills in the spec questionnaire (see below), then adds the `waiting-for-ai` label. AI raises a **spec PR** containing the project vision, epics, features, and external dependencies. If anything is ambiguous, the AI removes `waiting-for-ai` and leaves a PR comment. Developer answers, re-applies `waiting-for-ai` to iterate, then reviews and merges → closed |
 
 **[1c] Spec questionnaire — the AI expects answers to:**
 - What problem does this product solve, and for whom?
@@ -208,12 +208,12 @@ This means anyone watching the issue gets notified and can navigate to the PR wi
 Labels signal whose turn it is to act. The AI monitors for `waiting-for-ai` on both issues and PRs.
 
 **On issues:**
-- Developer adds `waiting-for-ai` → AI picks up, responds or raises a PR, then swaps to `waiting-for-human`
+- Developer adds `waiting-for-ai` → AI picks up, responds or raises a PR, then removes `waiting-for-ai` (no replacement label needed — no label = human's turn)
 - Developer adds `action-ready` → AI implements without discussion, raises a PR, removes `action-ready`
-- If the AI has a blocking question when it sees `action-ready`, it removes `action-ready`, adds `waiting-for-human`, and posts the question as a comment. Developer answers and re-applies `action-ready` to proceed.
+- If the AI has a blocking question when it sees `action-ready`, it removes `action-ready` and posts the question as a comment. Developer answers and re-applies `action-ready` to proceed.
 
 **On PRs:**
-- Developer leaves a review and adds `waiting-for-ai` → AI addresses comments, pushes, swaps to `waiting-for-human`
+- Developer leaves a review and adds `waiting-for-ai` → AI addresses comments, pushes, removes `waiting-for-ai`
 - No `action-ready` on PRs — a PR is already an implementation artefact
 
 **No labels = idle/backlog.** An issue without labels is simply waiting — neither the AI nor the developer is blocked.
@@ -235,10 +235,10 @@ This is a lightweight text-based trigger for use alongside the label system.
 | Label | Usage |
 |-------|-------|
 | `waiting-for-ai` | AI's turn — discussion, spec iteration, or PR review iteration |
-| `waiting-for-human` | Human's turn — reviewing, providing input, or signing off |
 | `action-ready` | Issue approved for implementation — AI should start coding |
+| `ai-error` | Claude hit an error — human needs to review and re-trigger |
 
-Labels apply to both issues and PRs. No label = idle/backlog.
+Labels apply to both issues and PRs. **No label = human's turn / idle/backlog** — no explicit label is needed to signal this.
 
 ---
 
